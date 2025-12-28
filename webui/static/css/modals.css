@@ -1,0 +1,578 @@
+/* Modal Styles - Base modal, new session modal, backend dropdown, resume modal */
+
+/* Base Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Memory Viewer Modal */
+.modal-content.memory-viewer {
+    width: 95vw;
+    max-width: 1400px;
+    height: 95vh;
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--card-header-bg);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modal-header:hover {
+    background: var(--hover-secondary);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-header h3 i {
+    color: var(--primary);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--primary);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+
+.modal-close:hover {
+    background: var(--hover-secondary);
+    color: var(--text-muted);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Modal Footer */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-primary);
+    background: var(--card-header-bg);
+}
+
+.modal-footer-info {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.keyboard-hint kbd {
+    padding: 0.125rem 0.25rem;
+    background: var(--card-header-bg);
+    border: 1px solid var(--border-secondary);
+    border-radius: 3px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.8rem;
+    margin: 0 0.25rem;
+}
+
+/* Modal Header Actions */
+.modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-header-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* New Session Modal */
+.new-session-modal-content {
+    max-width: 700px;
+    width: 90%;
+    overflow: visible;
+    border-radius: 16px;
+}
+
+.new-session-modal-content .modal-header {
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+}
+
+.new-session-modal-content .modal-footer {
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+}
+
+.new-session-modal-content .modal-body {
+    padding: 1.5rem;
+    overflow: visible;
+}
+
+.new-session-modal-content .modal-body label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+#new-session-task,
+#resume-session-guidance {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#new-session-task:focus,
+#resume-session-guidance:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+#new-session-task::placeholder,
+#resume-session-guidance::placeholder {
+    color: var(--text-muted);
+}
+
+/* Backend Selector Row */
+.backend-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.backend-selector-row label {
+    margin-bottom: 0 !important;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* Backend Display Row (read-only, for resume modal) */
+.backend-display-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.backend-display-row label {
+    margin-bottom: 0 !important;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* Session ID display in modal header */
+.session-id-display {
+    font-weight: normal;
+    font-size: 0.9em;
+    opacity: 0.85;
+    margin-left: 0.25rem;
+}
+
+/* Backend Custom Dropdown */
+.backend-dropdown {
+    position: relative;
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.backend-dropdown-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.backend-dropdown-toggle:hover {
+    border-color: var(--border-accent);
+}
+
+.backend-dropdown-toggle:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.backend-dropdown.open .backend-dropdown-toggle {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.backend-dropdown-toggle i {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.backend-dropdown.open .backend-dropdown-toggle i {
+    transform: rotate(180deg);
+}
+
+.backend-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--input-bg);
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+    overflow: hidden;
+}
+
+.backend-dropdown.open .backend-dropdown-menu {
+    display: block;
+    animation: dropdown-enter 0.15s ease-out;
+}
+
+.backend-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: none;
+    background: none;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.backend-dropdown-item:hover {
+    background-color: var(--primary-light);
+}
+
+.backend-dropdown-item.selected {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.backend-dropdown-item.disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.backend-dropdown-item.disabled:hover {
+    background: none;
+}
+
+.backend-dropdown-item i {
+    width: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.backend-dropdown-item .item-label {
+    flex: 1;
+}
+
+.backend-dropdown-item .item-badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background-color: var(--backend-local-bg);
+    color: var(--backend-local-text);
+}
+
+.backend-dropdown-item[data-value="claude"] .item-badge {
+    background-color: var(--backend-claude-bg);
+    color: var(--backend-claude-text);
+}
+
+/* Backend Status */
+.backend-status {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.backend-status-local {
+    background-color: var(--backend-local-bg);
+    color: var(--backend-local-text);
+}
+
+.backend-status-claude {
+    background-color: var(--backend-claude-bg);
+    color: var(--backend-claude-text);
+}
+
+.backend-status-warning {
+    background-color: var(--backend-warning-bg);
+    color: var(--backend-warning-text);
+}
+
+.backend-status-error {
+    background-color: var(--backend-error-bg);
+    color: var(--backend-error-text);
+}
+
+/* New Session Modal Footer Alignment */
+.new-session-modal-content .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.new-session-modal-content .modal-footer .btn {
+    margin-left: 0.5rem;
+}
+
+.new-session-modal-content .modal-footer .btn:first-of-type {
+    margin-left: auto;
+}
+
+/* Preset Editor Modal */
+.preset-editor-modal {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Verification Modal */
+.verification-modal-content {
+    max-width: 600px;
+    width: 90%;
+    border-radius: 16px;
+}
+
+.verification-modal-content .modal-header {
+    border-radius: 16px 16px 0 0;
+}
+
+.verification-modal-content .modal-footer {
+    border-radius: 0 0 16px 16px;
+}
+
+.verification-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.verification-status.high {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-completed);
+}
+
+.verification-status.medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--status-interrupted);
+}
+
+.verification-status.low {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-failed);
+}
+
+.verification-status i {
+    font-size: 1.25rem;
+}
+
+.verification-status .confidence-badge {
+    margin-left: auto;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.verification-reasoning,
+.verification-evidence {
+    margin-bottom: 1rem;
+}
+
+.verification-reasoning strong,
+.verification-evidence strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.verification-reasoning p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.verification-evidence pre {
+    background: var(--card-header-bg);
+    padding: 0.75rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    max-height: 200px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.verification-update {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.verification-update strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.verification-update .value-comparison {
+    background: var(--primary-light);
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+}
+
+.verification-update .new-value {
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .modal-content.memory-viewer {
+        width: 95vw;
+        height: 90vh;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 1rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        padding: 1rem;
+    }
+
+    .preset-editor-modal {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .verification-modal-content {
+        width: 95%;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+}

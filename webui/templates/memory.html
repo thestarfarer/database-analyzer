@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Memory - {{ session_id }}{% endblock %}
+
+{% block body_attrs %}data-session-id="{{ session_id }}"{% endblock %}
+
+{% block content %}
+<div class="session-detail-container">
+    <div class="session-detail-header">
+        <div class="breadcrumb">
+            <a href="{{ '/' + language + '/' if language != 'en' else '/' }}" class="breadcrumb-link">
+                <i class="fas fa-home"></i> <span data-i18n="navigation.sessions">Sessions</span>
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ ('/' + language + '/session/' + session_id) if language != 'en' else ('/session/' + session_id) }}" class="breadcrumb-link">Session {{ session_id }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-current" data-i18n="navigation.memory">Memory</span>
+        </div>
+
+        <div class="session-actions-header">
+            <button class="btn btn-primary" onclick="exportMemory()">
+                <i class="fas fa-download"></i> <span data-i18n="memory.actions.export">Export</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" id="loading-state">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p data-i18n="common.loading">Loading memory data...</p>
+        </div>
+    </div>
+
+    <!-- Memory Content -->
+    <div id="memory-content">
+        <!-- Memory data will be loaded here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/memory.js') }}"></script>
+{% endblock %}

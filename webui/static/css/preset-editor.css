@@ -1,0 +1,240 @@
+/* Preset Editor Styles - Modal, tabs, variables list, default preset section */
+
+/* Preset Editor Button */
+.preset-editor-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.preset-editor-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.preset-editor-btn i {
+    font-size: 0.9rem;
+}
+
+/* Preset Selector Section */
+.preset-selector-section {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-selector-section label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.preset-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.preset-select:hover {
+    border-color: var(--border-accent);
+}
+
+.preset-select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Preset Tabs */
+.preset-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--border-primary);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-tab {
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.preset-tab:hover {
+    color: var(--primary);
+}
+
+.preset-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+}
+
+/* Tab Panels */
+.preset-tab-content {
+    position: relative;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Variables Help Section */
+.variables-help {
+    background: var(--bg-hover);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.variables-help h3 {
+    margin-top: 0;
+    color: var(--primary);
+}
+
+.variables-help p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+/* Variables List */
+.variables-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.variable-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary);
+}
+
+.variable-name {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.variable-description {
+    color: var(--text-secondary);
+    margin: 0.5rem 0;
+}
+
+.variable-details {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.variable-detail {
+    color: var(--text-muted);
+}
+
+.variable-detail strong {
+    color: var(--text-secondary);
+}
+
+/* Default Preset Section */
+.default-preset-section {
+    background: var(--primary-light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--primary);
+}
+
+.default-preset-section h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.default-preset-section .help-text {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.default-preset-selector {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.default-preset-selector .preset-select {
+    flex: 1;
+    min-width: 200px;
+}
+
+.default-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.default-indicator i {
+    color: #FFD700;
+}
+
+/* Preset Editor Divider */
+.preset-editor-divider {
+    height: 2px;
+    background: linear-gradient(to right,
+        transparent,
+        var(--border-primary) 20%,
+        var(--border-primary) 80%,
+        transparent);
+    margin: 1.5rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .preset-selector-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .preset-select {
+        width: 100%;
+    }
+
+    .preset-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+}

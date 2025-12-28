@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="{{ language or 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Database Analyzer WebUI{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body {% block body_attrs %}{% endblock %}>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <h1 class="logo" onclick="window.location.href='{{ '/' + language + '/' if language != 'en' else '/' }}'">
+                    <i class="fas fa-chart-line"></i>
+                    <span data-i18n="app.title">Database Analyzer</span>
+                </h1>
+                <div class="connection-status" id="connection-status">
+                    <i class="fas fa-circle" id="status-icon"></i>
+                    <span id="status-text" data-i18n="status.connecting">Connecting...</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="language-selector">
+                    <div class="custom-select" id="language-select">
+                        <div class="select-trigger">
+                            <i class="fas fa-globe"></i>
+                            <span class="select-text">{{ language.upper() if language else 'EN' }}</span>
+                            <i class="fas fa-chevron-down select-arrow"></i>
+                        </div>
+                        <div class="select-options">
+                            <div class="select-option {{ 'selected' if language == 'en' or not language else '' }}" data-value="en">
+                                <i class="fas fa-globe"></i>
+                                <span>English</span>
+                            </div>
+                            <!-- Add more languages by creating translation files in static/translations/ -->
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="preset-editor-btn" id="preset-editor-btn">
+                    <i class="fas fa-file-code"></i> <span data-i18n="navigation.prompts">Prompts</span>
+                </a>
+                <a href="#" class="nav-link" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> <span data-i18n="navigation.refresh">Refresh</span>
+                </a>
+                <span class="nav-info" id="last-refresh-counter" data-i18n="time.last_refresh" data-i18n-replacements='{"time":"0s"}'>
+                    Last refresh: 0s ago
+                </span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Preset Editor Modal -->
+    <div id="preset-editor-modal" class="modal">
+        <div class="modal-content preset-editor-modal">
+            <div class="modal-header">
+                <h2 data-i18n="prompts.editor_title">Prompt Preset Editor</h2>
+                <button class="modal-close" id="preset-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="default-preset-section">
+                    <h3 data-i18n="prompts.default_preset_label">Default Preset for WebUI Sessions</h3>
+                    <p class="help-text" data-i18n="prompts.default_preset_help">This preset will be used for all sessions created from WebUI</p>
+                    <div class="default-preset-selector">
+                        <select id="default-preset-select" class="preset-select">
+                            <option value="">Loading...</option>
+                        </select>
+                        <span class="default-indicator" data-i18n="prompts.current_default">
+                            <i class="fas fa-star"></i> Current Default
+                        </span>
+                    </div>
+                </div>
+
+                <div class="preset-editor-divider"></div>
+
+                <div class="preset-selector-section">
+                    <label for="preset-select" data-i18n="prompts.select_preset">Select Preset to Edit:</label>
+                    <select id="preset-select" class="preset-select">
+                        <option value="">Loading...</option>
+                    </select>
+                    <button id="create-new-preset-btn" class="btn btn-secondary" data-i18n="prompts.create_new">Create New</button>
+                    <button id="delete-preset-btn" class="btn btn-delete" data-i18n="prompts.delete">Delete</button>
+                </div>
+
+                <div class="preset-tabs">
+                    <button class="preset-tab active" data-tab="metadata" data-i18n="prompts.tab_metadata">Metadata</button>
+                    <button class="preset-tab" data-tab="base" data-i18n="prompts.tab_base">Base Prompt</button>
+                    <button class="preset-tab" data-tab="verification" data-i18n="prompts.tab_verification">Verification</button>
+                    <button class="preset-tab" data-tab="continuation" data-i18n="prompts.tab_continuation">Continuation</button>
+                    <button class="preset-tab" data-tab="report" data-i18n="prompts.tab_report">Report</button>
+                    <button class="preset-tab" data-tab="variables" data-i18n="prompts.tab_variables">Variables</button>
+                </div>
+
+                <div class="preset-tab-content">
+                    <!-- Metadata Tab -->
+                    <div class="tab-panel active" data-panel="metadata">
+                        <div class="form-group">
+                            <label for="preset-name" data-i18n="prompts.field_name">Preset Name:</label>
+                            <input type="text" id="preset-name" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="preset-description" data-i18n="prompts.field_description">Description:</label>
+                            <textarea id="preset-description" class="form-textarea" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Base Prompt Tab -->
+                    <div class="tab-panel" data-panel="base">
+                        <div class="form-group">
+                            <label for="base-schema" data-i18n="prompts.field_schema">Database Schema:</label>
+                            <textarea id="base-schema" class="form-textarea code-editor" rows="10"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="base-tools" data-i18n="prompts.field_tools">Tools Description:</label>
+                            <textarea id="base-tools" class="form-textarea code-editor" rows="10"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="base-domain" data-i18n="prompts.field_domain">Domain Context:</label>
+                            <textarea id="base-domain" class="form-textarea code-editor" rows="10"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="base-task" data-i18n="prompts.field_task">Task Instructions:</label>
+                            <textarea id="base-task" class="form-textarea code-editor" rows="10"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Verification Tab -->
+                    <div class="tab-panel" data-panel="verification">
+                        <div class="form-group">
+                            <label for="verification-task" data-i18n="prompts.field_verification_task">Verification Task Template:</label>
+                            <textarea id="verification-task" class="form-textarea code-editor" rows="20"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Continuation Tab -->
+                    <div class="tab-panel" data-panel="continuation">
+                        <div class="form-group">
+                            <label for="continuation-context" data-i18n="prompts.field_continuation_context">Iteration Context Template:</label>
+                            <textarea id="continuation-context" class="form-textarea code-editor" rows="10"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Report Tab -->
+                    <div class="tab-panel" data-panel="report">
+                        <div class="form-group">
+                            <label for="report-instructions" data-i18n="prompts.field_report_instructions">Report Instructions:</label>
+                            <textarea id="report-instructions" class="form-textarea code-editor" rows="15"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Variables Tab -->
+                    <div class="tab-panel" data-panel="variables">
+                        <div class="variables-help">
+                            <h3 data-i18n="prompts.variables_title">Available Variables</h3>
+                            <p data-i18n="prompts.variables_description">Use {{VARIABLE}} syntax in your prompts. Variables are replaced at runtime.</p>
+                            <div id="variables-list" class="variables-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-preset-btn" class="btn btn-primary" data-i18n="prompts.save">Save</button>
+                <button id="cancel-preset-btn" class="btn btn-secondary" data-i18n="prompts.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p data-i18n="footer.copyright">2025 Database Analyzer WebUI</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/language-selector.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/preset-editor.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,170 @@
+/* WebUI Color System - Centralized color definitions */
+
+:root {
+    /* Memory Category Colors */
+    --memory-insights: #EDC948;
+    --memory-patterns: #4E79A7;
+    --memory-explored-areas: #B07AA1;
+    --memory-key-findings: #59A14F;
+    --memory-opportunities: #F28E2B;
+    --memory-data-milestones: #76B7B2;
+    --memory-data-issues: #E15759;
+    --memory-user-requests: #FF9DA7;
+    --memory-metrics: #9C755F;
+    --memory-context: #BAB0AC;
+
+    /* Memory Category Badge Colors (background + text) */
+    --memory-insights-bg: #fef7dc;
+    --memory-insights-text: #7a5f0d;
+    --memory-patterns-bg: #d6e4f5;
+    --memory-patterns-text: #2c4771;
+    --memory-explored-areas-bg: #ead5e8;
+    --memory-explored-areas-text: #5c3e5a;
+    --memory-key-findings-bg: #d4e8d1;
+    --memory-key-findings-text: #2f5329;
+    --memory-opportunities-bg: #fde8d6;
+    --memory-opportunities-text: #7a451c;
+    --memory-data-milestones-bg: #d9edeb;
+    --memory-data-milestones-text: #3b5c59;
+    --memory-data-issues-bg: #f8d7da;
+    --memory-data-issues-text: #721c24;
+    --memory-user-requests-bg: #ffe6e9;
+    --memory-user-requests-text: #7f4d52;
+    --memory-metrics-bg: #e8e0db;
+    --memory-metrics-text: #4e3a30;
+    --memory-context-bg: #f0efee;
+    --memory-context-text: #5d5856;
+
+    /* Memory Category Filter Pill Colors */
+    --memory-insights-pill: #ffc107;
+    --memory-patterns-pill: #007bff;
+    --memory-key-findings-pill: #28a745;
+    --memory-explored-areas-pill: #6f42c1;
+    --memory-context-pill: #17a2b8;
+    --memory-data-issues-pill: #dc3545;
+
+    /* Status Colors */
+    --status-running: #10B981;
+    --status-completed: #8B5CF6;
+    --status-interrupted: #F59E0B;
+    --status-awaiting-input: #3B82F6;
+    --status-failed: #EF4444;
+
+    /* Tool Colors */
+    --tool-sql: #8B5CF6;
+    --tool-memory: #10B981;
+    --tool-memory-remove: #DC2626;
+
+    /* Semantic Colors */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #8B5CF6;
+
+    /* Theme Colors */
+    --primary: #7B2CBF;
+    --primary-hover: #6A1FA8;
+    --primary-light: #F3E8FF;
+    --primary-light-hover: #E9D5FF;
+    --primary-light-active: #D8B4FE;
+
+    /* Button Colors */
+    --btn-primary: #7B2CBF;
+    --btn-primary-hover: #6A1FA8;
+    --btn-secondary: #8a949e;
+    --btn-secondary-hover: #6c757d;
+
+    /* Text Colors */
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --text-dark: #111827;
+    --text-light: #f8f9fa;
+    --text-white: #fff;
+    --text-gold: #C77DFF;
+
+    /* Background Colors */
+    --bg-primary: #F3F4F6;
+    --bg-hover: #f8f9fa;
+    --input-bg: #fff;
+
+    /* Border Colors */
+    --border-light: #e9ecef;
+    --border-primary: #e9ecef;
+    --border-secondary: #dee2e6;
+
+    /* Gradients */
+    --gradient-header: linear-gradient(135deg, #9D4EDD 0%, #7B2CBF 100%);
+    --gradient-progress: linear-gradient(45deg, #7B2CBF, #9D4EDD);
+
+    /* UI Element Colors */
+    --footer-bg: #343a40;
+    --card-header-bg: #f8f9fa;
+    --hover-secondary: #e9ecef;
+    --border-accent: #7B2CBF;
+    --border-info: #2196f3;
+
+    /* Delete Button */
+    --btn-delete: #a94757;
+    --btn-delete-hover: #8b3a47;
+    --btn-delete-text: #f8f9fa;
+
+    /* Dropdown */
+    --dropdown-danger-color: #dc6875;
+    --dropdown-danger-bg: #f8d7da;
+    --dropdown-danger-text: #b02a37;
+
+    /* LLM Backend Status Colors */
+    --backend-local-bg: #d4edda;
+    --backend-local-text: #155724;
+    --backend-claude-bg: #e8d5b7;
+    --backend-claude-text: #7a5c2e;
+    --backend-warning-bg: #fff3cd;
+    --backend-warning-text: #856404;
+    --backend-error-bg: #f8d7da;
+    --backend-error-text: #721c24;
+
+    /* Session Cards */
+    --session-update-bg: #fff3cd;
+    --session-entering-bg: #d4edda;
+    --session-exiting-bg: #f8d7da;
+
+    /* Alert/Notice */
+    --alert-danger-bg: #f8d7da;
+    --alert-danger-border: #f5c6cb;
+    --alert-warning-bg: #fff3cd;
+    --alert-warning-border: #ffeaa7;
+    --alert-warning-text: #856404;
+
+    /* Metadata/Code Blocks */
+    --metadata-bg: #fff3cd;
+    --metadata-border: #ffeaa7;
+    --metadata-text: #856404;
+    --code-bg: #f8f9fa;
+    --code-border: #e9ecef;
+    --output-bg: #f1f3f4;
+    --output-border: #dee2e6;
+    --sql-border: #8B5CF6;
+
+    /* Progress/Loading */
+    --progress-bg: #e9ecef;
+    --skeleton-bg: #e9ecef;
+    --skeleton-border: #dee2e6;
+    --skeleton-text: #adb5bd;
+
+    /* Toast */
+    --toast-success-bg: #d4edda;
+    --toast-success-text: #155724;
+    --toast-success-border: #c3e6cb;
+    --toast-error-bg: #f8d7da;
+    --toast-error-text: #721c24;
+    --toast-error-border: #f5c6cb;
+    --toast-info-bg: #d1ecf1;
+    --toast-info-text: #0c5460;
+    --toast-info-border: #bee5eb;
+
+    /* Special Colors */
+    --verification-highlight: #ff6b35;
+    --focus-border: #7B2CBF;
+    --focus-bg: #fff3cd;
+}

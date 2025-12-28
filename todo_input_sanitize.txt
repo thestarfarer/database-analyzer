@@ -1,0 +1,122 @@
+# TODO: Fix Arrow Key Escape Sequences in User Input
+
+## Problem Description
+Arrow keys pressed in terminal during LLM execution get buffered in stdin and captured as user input.
+Results in escape sequences like `\u001bOA` being stored as user_input in session JSON files.
+
+## Root Cause
+1. When LLM is processing (SQL queries, etc.), terminal stdin accumulates keystrokes
+2. User switches to terminal window and accidentally presses arrow keys
+3. Arrow keys generate escape sequences (ESC + OA, etc.)
+4. Next `input()` call in cli_interface.py reads these buffered escape sequences
+5. Escape sequences stored as user_input in session iterations
+
+## Confirmed Evidence
+- Session 20251105_135359 iteration 2: user_input = "\u001bOA"
+- Session 20250924_133057 iteration 3: user_input = "\u001bOA" (same issue)
+- \u001b = ESC character, OA = arrow key in application mode
+
+## Requirements
+- Must preserve ability to interact with any session via terminal (no stdin=DEVNULL)
+- Must work for both WebUI-spawned and CLI-launched sessions
+- Should be cross-platform (Linux preferred, graceful degradation elsewhere)
+
+## Proposed Solution: Stdin Buffer Clearing + Input Validation
+
+### Approach
+1. Before each input() call: Clear buffered terminal input
+2. After input() returns: Validate input isn't pure escape sequences
+3. Auto-retry if invalid input detected
+
+### Implementation Plan
+
+#### Step 1: Create new utility module
+**File**: ui/stdin_handler.py (new file)
+
+Functions:
+- clear_stdin_buffer(): Use termios.tcflush() on Linux, select.select() fallback
+- is_valid_input(text): Check if input contains printable characters
+- safe_input(prompt): Wrapper that clears buffer + validates + retries
+
+#### Step 2: Update CLI interface
+**File**: ui/cli_interface.py
+
+Changes needed:
+- Line 7: Add import: from .stdin_handler import safe_input
+- Line 39: Replace input() with safe_input() in get_initial_task()
+- Line 76: Replace input() with safe_input() in get_user_input()
+- Line 91: Replace input() with safe_input() in get_user_input() for report topic
+
+### Technical Details
+
+**termios.tcflush() (Linux):**
+```python
+import termios
+fd = sys.stdin.fileno()
+termios.tcflush(fd, termios.TCIFLUSH)  # Flush input buffer
+```
+
+**select.select() (cross-platform fallback):**
+```python
+import select
+while select.select([sys.stdin], [], [], 0)[0]:
+    sys.stdin.read(1)
+```
+
+**Input validation:**
+```python
+def is_valid_input(text):
+    if not text:
+        return True  # Empty is valid
+    printable_chars = sum(1 for c in text if ord(c) >= 32 or c in '\t\n\r')
+    return printable_chars > 0
+```
+
+## Why NOT Using Alternative Approaches
+
+### stdin=DEVNULL (rejected)
+- Would prevent terminal interaction with WebUI-spawned sessions
+- User requirement: "be able to interact with all sessions independently from webui"
+
+### Display-time filtering (rejected)
+- Would hide other input bugs after this one is fixed
+- User preference: Catch errors at source, not mask them
+
+### Input-time sanitization only (rejected)
+- Doesn't prevent escape sequences from being captured
+- Just hides them after the fact
+- Same issue as display-time filtering
+
+## Benefits of Proposed Solution
+- ✅ Preserves full terminal interactivity
+- ✅ Clears buffered garbage before prompting
+- ✅ Auto-retry for invalid input
+- ✅ Works on Linux (primary platform)
+- ✅ Graceful degradation on other platforms
+- ✅ Doesn't mask future bugs
+
+## Testing Checklist
+- [ ] Create ui/stdin_handler.py with clear_stdin_buffer(), is_valid_input(), safe_input()
+- [ ] Update ui/cli_interface.py to use safe_input()
+- [ ] Test: Press arrow keys during LLM execution, verify next prompt doesn't capture them
+- [ ] Test: WebUI-spawned session can be interacted with via terminal
+- [ ] Test: CLI-launched session works normally
+- [ ] Test: Legitimate input (including empty) works correctly
+- [ ] Test: Arrow keys in readline editing still work
+- [ ] Add unit tests to tests/unit/test_cli_interface.py
+
+## Files to Create/Modify
+1. ui/stdin_handler.py - NEW FILE (~80 lines)
+2. ui/cli_interface.py - UPDATE (4 changes: import + 3 input() replacements)
+
+## Status
+- [x] Problem identified and confirmed
+- [x] Root cause analyzed
+- [x] Solution researched
+- [ ] Implementation pending
+- [ ] Testing pending
+
+## Related Context
+- Discovered during WebUI button height fix session
+- Initially appeared as 'OA' displaying in "Last user input" field on session cards
+- User clarified: Not clipboard/autocomplete, happened when switching to terminal

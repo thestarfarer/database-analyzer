@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Sessions - Database Analyzer{% endblock %}
+
+
+{% block content %}
+<div class="sessions-container">
+    <div class="sessions-header">
+        <h2 data-i18n="sessions.title">Analysis Sessions</h2>
+        <div class="sessions-controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" data-i18n="sessions.search_placeholder" placeholder="Search sessions...">
+            </div>
+            <div class="filter-controls">
+                <select id="status-filter">
+                    <option value="" data-i18n="sessions.all_status">All Status</option>
+                    <option value="running" data-i18n="status.running">Running</option>
+                    <option value="completed" data-i18n="status.completed">Completed</option>
+                    <option value="interrupted" data-i18n="status.interrupted">Interrupted</option>
+                </select>
+                <select id="sort-order">
+                    <option value="desc" data-i18n="sessions.newest_first">Newest First</option>
+                    <option value="asc" data-i18n="sessions.oldest_first">Oldest First</option>
+                </select>
+                <button class="btn btn-primary" id="new-session-btn">
+                    <i class="fas fa-plus"></i> <span data-i18n="sessions.new_session">New Session</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sessions-stats" id="sessions-stats">
+        <div class="stat-card">
+            <i class="fas fa-play-circle"></i>
+            <div class="stat-info">
+                <span class="stat-number" id="running-count">0</span>
+                <span class="stat-label" data-i18n="status.running">Running</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle"></i>
+            <div class="stat-info">
+                <span class="stat-number" id="completed-count">0</span>
+                <span class="stat-label" data-i18n="status.completed">Completed</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-database"></i>
+            <div class="stat-info">
+                <span class="stat-number" id="total-queries">0</span>
+                <span class="stat-label" data-i18n="session.total_queries">Total Queries</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sessions-grid" id="sessions-grid">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p data-i18n="sessions.loading">Loading sessions...</p>
+        </div>
+    </div>
+
+    <div class="empty-state" id="empty-state" style="display: none;">
+        <i class="fas fa-inbox"></i>
+        <h3 data-i18n="sessions.no_sessions_title">No Sessions Found</h3>
+        <p data-i18n="sessions.no_sessions_message">Start an analysis session to see it here.</p>
+    </div>
+</div>
+
+<!-- Session Card Template -->
+<template id="session-card-template">
+    <div class="session-card" data-session-id="" onclick="viewSession(this.dataset.sessionId)">
+        <div class="session-header">
+            <div class="session-status">
+                <i class="status-icon fas"></i>
+                <span class="status-text"></span>
+            </div>
+            <div class="session-time"></div>
+        </div>
+
+        <div class="session-content">
+            <div class="session-title-row">
+                <h3 class="session-title"></h3>
+                <span class="session-backend-icon" title="LLM Backend">
+                    <i class="fas fa-server"></i>
+                </span>
+            </div>
+            <p class="session-task"></p>
+
+            <div class="session-metrics">
+                <div class="metric">
+                    <i class="fas fa-redo-alt"></i>
+                    <span class="metric-value iterations-count">0</span>
+                    <span class="metric-label" data-i18n="session.iterations">Iterations</span>
+                </div>
+                <div class="metric">
+                    <i class="fas fa-database"></i>
+                    <span class="metric-value queries-count">0</span>
+                    <span class="metric-label" data-i18n="session.queries">Queries</span>
+                </div>
+                <div class="metric">
+                    <i class="fas fa-brain"></i>
+                    <span class="metric-value memory-items">0</span>
+                    <span class="metric-label" data-i18n="session.insights">Insights</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="session-actions">
+            <!-- Primary Actions -->
+            <button class="btn btn-warning stop-session" onclick="stopSession(this.dataset.sessionId); event.stopPropagation();" style="display: none;">
+                <i class="fas fa-stop"></i> <span data-i18n="navigation.stop">Stop</span>
+            </button>
+            <button class="btn btn-muted-primary resume-session" onclick="resumeSession(this.dataset.sessionId, this.dataset.sessionStatus); event.stopPropagation();" style="display: none;">
+                <i class="fas fa-play"></i> <span data-i18n="navigation.resume">Resume</span>
+            </button>
+
+            <!-- Secondary Actions Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" onclick="toggleDropdown(this); event.stopPropagation();">
+                    <i class="fas fa-ellipsis-v"></i> <span data-i18n="navigation.more">More</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item export-session" onclick="exportSession(this.dataset.sessionId); closeDropdown(this); event.stopPropagation();">
+                        <i class="fas fa-download"></i> <span data-i18n="navigation.export">Export</span>
+                    </button>
+                    <button class="dropdown-item dropdown-item-danger delete-session" onclick="deleteSession(this.dataset.sessionId); closeDropdown(this); event.stopPropagation();">
+                        <i class="fas fa-trash"></i> <span data-i18n="navigation.delete">Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- New Session Modal -->
+<div id="new-session-modal" class="modal" style="display: none;">
+    <div class="modal-content new-session-modal-content">
+        <div class="modal-header" onclick="closeNewSessionModal()">
+            <h3>
+                <i class="fas fa-plus-circle"></i>
+                <span data-i18n="sessions.new_session">New Session</span>
+            </h3>
+            <button class="modal-close" onclick="closeNewSessionModal(); event.stopPropagation()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <label for="new-session-task" data-i18n="sessions.enter_task">Enter the initial task for the new session:</label>
+            <textarea id="new-session-task" rows="4" data-i18n-placeholder="sessions.task_placeholder" placeholder="Describe your analysis task..."></textarea>
+
+            <div class="backend-selector-row">
+                <label data-i18n="sessions.llm_backend">LLM Backend:</label>
+                <div class="backend-dropdown" id="backend-dropdown">
+                    <button type="button" class="backend-dropdown-toggle" id="backend-dropdown-toggle">
+                        <span class="backend-selected-text">Qwen (Local)</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="backend-dropdown-menu" id="backend-dropdown-menu">
+                        <!-- Options populated by JS -->
+                    </div>
+                    <input type="hidden" id="llm-backend-select" value="qwen">
+                </div>
+                <span id="backend-status" class="backend-status"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-info">
+                <span class="keyboard-hint">
+                    <kbd>ESC</kbd> <span data-i18n="sessions.to_close">to close</span> |
+                    <kbd>Ctrl+Enter</kbd> <span data-i18n="sessions.to_create">to create</span>
+                </span>
+            </div>
+            <button class="btn btn-secondary" onclick="closeNewSessionModal()">
+                <span data-i18n="common.cancel">Cancel</span>
+            </button>
+            <button class="btn btn-primary" id="create-session-btn" onclick="submitNewSession()">
+                <i class="fas fa-play"></i> <span data-i18n="sessions.create">Create</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-backdrop" onclick="closeNewSessionModal()"></div>
+</div>
+
+<!-- Resume Session Modal -->
+<div id="resume-session-modal" class="modal" style="display: none;">
+    <div class="modal-content new-session-modal-content">
+        <div class="modal-header" onclick="closeResumeSessionModal()">
+            <h3>
+                <i class="fas fa-play-circle"></i>
+                <span data-i18n="navigation.resume">Resume</span>
+                <span id="resume-session-id" class="session-id-display"></span>
+            </h3>
+            <button class="modal-close" onclick="closeResumeSessionModal(); event.stopPropagation()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <label for="resume-session-guidance" data-i18n="sessions.resume_guidance_label">Set a goal for the next iteration (optional):</label>
+            <textarea id="resume-session-guidance" rows="4" data-i18n-placeholder="sessions.resume_guidance_placeholder" placeholder="Describe what you want to analyze next..."></textarea>
+
+            <div class="backend-display-row">
+                <label data-i18n="session.backend">Backend:</label>
+                <span id="resume-session-backend" class="backend-badge"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-info">
+                <span class="keyboard-hint">
+                    <kbd>ESC</kbd> <span data-i18n="sessions.to_close">to close</span> |
+                    <kbd>Ctrl+Enter</kbd> <span data-i18n="sessions.to_resume">to resume</span>
+                </span>
+            </div>
+            <button class="btn btn-secondary" onclick="closeResumeSessionModal()">
+                <span data-i18n="common.cancel">Cancel</span>
+            </button>
+            <button class="btn btn-primary" id="submit-resume-btn" onclick="submitResumeSession()">
+                <i class="fas fa-play"></i> <span data-i18n="navigation.resume">Resume</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-backdrop" onclick="closeResumeSessionModal()"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/sessions.js') }}"></script>
+{% endblock %}

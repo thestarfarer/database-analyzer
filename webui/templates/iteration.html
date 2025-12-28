@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Iteration {{ iteration }} - Session {{ session_id }}{% endblock %}
+
+
+{% block body_attrs %}data-session-id="{{ session_id }}" data-iteration-num="{{ iteration }}"{% endblock %}
+
+{% block content %}
+<div class="iteration-detail-container">
+    <div class="iteration-detail-header">
+        <div class="breadcrumb">
+            <a href="{{ '/' + language + '/' if language != 'en' else '/' }}" class="breadcrumb-link">
+                <i class="fas fa-home"></i> <span data-i18n="navigation.sessions">Sessions</span>
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ ('/' + language + '/session/' + session_id) if language != 'en' else ('/session/' + session_id) }}" class="breadcrumb-link">Session {{ session_id }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-current"><span data-i18n="iteration.title" data-i18n-replacements='{"number":"{{ iteration }}"}'>Iteration {{ iteration }}</span></span>
+        </div>
+    </div>
+
+    <div class="iteration-header-info" id="iteration-header-info">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p data-i18n="iteration.loading">Loading iteration details...</p>
+        </div>
+    </div>
+
+    <div class="tool-calls-section">
+        <div class="tool-calls-timeline" id="tool-calls-timeline">
+            <div class="tool-calls-header" onclick="toggleExpandAll()">
+                <h3>
+                    <i class="fas fa-tools"></i>
+                    <span data-i18n="iteration.tool_calls">Tool Calls</span>
+                    <span class="tool-calls-count" id="tool-calls-count">0</span>
+                </h3>
+                <span class="expand-all-indicator" id="expand-all-indicator">
+                    <i class="fas fa-expand-alt"></i>
+                    <span class="expand-text" data-i18n="session.expand_all">Expand All</span>
+                </span>
+            </div>
+            <!-- Tool calls will be loaded here -->
+        </div>
+    </div>
+
+    </div>
+</div>
+
+<!-- LLM Response Modal -->
+<div id="llm-response-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header" onclick="closeLLMResponseModal()">
+            <h3>
+                <i class="fas fa-robot"></i>
+                <span data-i18n="iteration.llm_response">LLM Response</span>
+            </h3>
+            <div class="modal-header-actions" onclick="event.stopPropagation()">
+                <button class="btn btn-xs copy-btn" onclick="copyLLMResponse(false)" title="Copy response (without thinking)">
+                    <i class="fas fa-copy"></i>
+                    <span data-i18n="iteration.copy">Copy</span>
+                </button>
+                <button class="btn btn-xs copy-btn" onclick="copyLLMResponse(true)" title="Copy response (with thinking)" style="display: none;" id="copy-with-thinking-btn">
+                    <i class="fas fa-copy"></i>
+                    <span data-i18n="iteration.copy_all">Copy All</span>
+                </button>
+                <button class="modal-close" onclick="closeLLMResponseModal(); event.stopPropagation()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <!-- Thinking Section (hidden by default) -->
+            <div class="llm-thinking-section" id="llm-thinking-section" style="display: none;">
+                <div class="thinking-header" onclick="toggleThinking()">
+                    <i class="fas fa-chevron-right thinking-toggle-icon" id="thinking-toggle-icon"></i>
+                    <i class="fas fa-lightbulb"></i>
+                    <span data-i18n="iteration.thinking">Model Thinking</span>
+                    <span class="thinking-badge">
+                        <i class="fas fa-brain"></i>
+                    </span>
+                </div>
+                <div class="thinking-content" id="thinking-content" style="display: none;">
+                    <!-- Thinking content will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Main Response Content -->
+            <div class="llm-response-content" id="llm-response-content">
+                <!-- LLM response will be loaded here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-info">
+                <span class="keyboard-hint">
+                    <kbd>ESC</kbd> <span data-i18n="iteration.close_modal">to close</span>
+                    <span id="thinking-keyboard-hint" style="display: none;">
+                        • <kbd>T</kbd> <span data-i18n="iteration.toggle_thinking">to toggle thinking</span>
+                    </span>
+                </span>
+            </div>
+            <button class="btn btn-secondary" onclick="closeLLMResponseModal()">
+                <span data-i18n="session.close">Close</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-backdrop" onclick="closeLLMResponseModal()"></div>
+</div>
+
+<!-- Iteration Header Template -->
+<template id="iteration-header-template">
+    <div class="iteration-info-grid">
+        <div class="info-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i>
+                <h4 data-i18n="session.status">Status</h4>
+                <div class="status-badge">
+                    <i class="status-icon fas"></i>
+                    <span class="status-text"></span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="iteration-time-info">
+                    <p><strong data-i18n="iteration.number">Number:</strong> <span class="iteration-number"></span></p>
+                    <p><strong data-i18n="session.started">Started:</strong> <span class="start-time"></span></p>
+                    <p class="duration-item"><strong data-i18n="session.duration">Duration:</strong> <span class="duration"></span></p>
+                </div>
+                <div class="metric-item llm-response-metric" onclick="openLLMResponseModal()" style="display: none;">
+                    <i class="fas fa-robot"></i>
+                    <div class="metric-info">
+                        <span class="metric-label" data-i18n="iteration.llm_response">LLM Response</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i>
+                <h4 data-i18n="iteration.summary">Tool Call Summary</h4>
+            </div>
+            <div class="card-content">
+                <div class="tool-summary-grid">
+                    <div class="summary-item">
+                        <i class="fas fa-tools"></i>
+                        <div class="summary-info">
+                            <span class="summary-number total-calls">0</span>
+                            <span class="summary-label" data-i18n="session.tool_calls">Total Calls</span>
+                        </div>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-database"></i>
+                        <div class="summary-info">
+                            <span class="summary-number sql-calls">0</span>
+                            <span class="summary-label" data-i18n="session.sql_queries">SQL Queries</span>
+                        </div>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-brain"></i>
+                        <div class="summary-info">
+                            <span class="summary-number memory-calls">0</span>
+                            <span class="summary-label" data-i18n="session.memory_calls">Memory Ops</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Tool Call Item Template -->
+<template id="tool-call-template">
+    <div class="tool-call-item" data-call-id="">
+        <div class="tool-call-header" title="Click to expand/collapse tool call">
+            <div class="tool-info">
+                <i class="tool-icon fas"></i>
+                <span class="tool-name"></span>
+                <span class="call-id"></span>
+            </div>
+            <div class="tool-timing">
+                <span>
+                    <span class="execution-time"></span>
+                    <span class="timestamp"></span>
+                </span>
+                <i class="fas fa-chevron-down tool-call-toggle-icon"></i>
+            </div>
+        </div>
+
+        <div class="tool-call-content">
+            <div class="input-section">
+                <h5 class="section-header" title="Click to show/hide input">
+                    <span class="section-title">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span data-i18n="iteration.input">Input</span>
+                        <i class="fas fa-chevron-up section-toggle-icon"></i>
+                    </span>
+                    <span class="section-controls">
+                        <button class="btn btn-xs copy-btn" onclick="copyToClipboard(this)" data-copy-target=".input-content">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </span>
+                </h5>
+                <div class="input-content code-block">
+                    <!-- Input will be formatted here -->
+                </div>
+            </div>
+
+            <div class="output-section">
+                <h5 class="section-header" title="Click to show/hide output">
+                    <span class="section-title">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span data-i18n="iteration.output">Output</span>
+                        <i class="fas fa-chevron-up section-toggle-icon"></i>
+                    </span>
+                    <span class="section-controls">
+                        <button class="btn btn-xs copy-btn" onclick="copyToClipboard(this)" data-copy-target=".output-content">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </span>
+                </h5>
+                <div class="output-content">
+                    <!-- Output will be formatted here -->
+                </div>
+            </div>
+
+            <div class="metadata-section" style="display: none;">
+                <h5 class="metadata-header" title="Click to show/hide metadata">
+                    <span class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-i18n="iteration.metadata">Metadata</span>
+                        <i class="fas fa-chevron-down metadata-toggle-icon"></i>
+                    </span>
+                </h5>
+                <div class="metadata-content">
+                    <!-- Metadata will be shown here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<!-- Markdown support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="{{ url_for('static', filename='js/iteration.js') }}"></script>
+{% endblock %}

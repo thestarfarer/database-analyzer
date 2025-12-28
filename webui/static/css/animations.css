@@ -1,0 +1,142 @@
+/* Animations - All @keyframes definitions */
+
+/* Fade In */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Slide In (Modal) */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Slide In Right (Error Toast) */
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pulse (Live Indicator, Waiting) */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Progress Pulse */
+@keyframes progress-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Dropdown Enter */
+@keyframes dropdown-enter {
+    from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Pulse Update (Session Card) */
+@keyframes pulse-update {
+    0% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    50% { box-shadow: 0 0 0 3px var(--status-running), 0 4px 12px rgba(46, 204, 113, 0.4); }
+    100% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+}
+
+/* Heartbeat (Running Session) */
+@keyframes heartbeat {
+    0% {
+        opacity: 1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    10% {
+        opacity: 1;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), 0 0 0 1.7px rgba(16, 185, 129, 0.6);
+    }
+    33% {
+        opacity: 1;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), 0 0 0 1.7px rgba(16, 185, 129, 0.6);
+    }
+    100% {
+        opacity: 1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Slide In (Session Card) */
+@keyframes slide-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide Out (Session Card) */
+@keyframes slide-out {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Card Deal (Sporopedia Animation) */
+@keyframes card-deal {
+    0% {
+        opacity: 1;
+        transform: translate(var(--origin-x, 0), var(--origin-y, 0)) rotate(0deg) scale(0.4);
+        z-index: var(--deal-z-index, 1000);
+    }
+    30% {
+        opacity: 1;
+        transform: translate(calc(var(--origin-x, 0) * 0.7), calc(var(--origin-y, 0) * 0.7)) rotate(-8deg) scale(0.6);
+        z-index: var(--deal-z-index, 1000);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(calc(var(--origin-x, 0) * 0.3), calc(var(--origin-y, 0) * 0.3)) rotate(-3deg) scale(0.9);
+        z-index: var(--deal-z-index, 1000);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        z-index: 1;
+    }
+}
+
+/* Tool Call Slide In */
+@keyframes tool-call-slide-in {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Session {{ session_id }} - Database Analyzer{% endblock %}
+
+{% block body_attrs %}data-session-id="{{ session_id }}"{% endblock %}
+
+{% block content %}
+<div class="session-detail-container">
+    <div class="session-detail-header">
+        <div class="breadcrumb">
+            <a href="{{ '/' + language + '/' if language != 'en' else '/' }}" class="breadcrumb-link">
+                <i class="fas fa-home"></i> <span data-i18n="navigation.sessions">Sessions</span>
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-current">Session {{ session_id }}</span>
+        </div>
+
+        <div class="session-actions-header">
+            <button class="btn btn-secondary" onclick="exportSession('{{ session_id }}')">
+                <i class="fas fa-download"></i> <span data-i18n="navigation.export">Export</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="session-overview" id="session-overview">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p data-i18n="session.loading_details">Loading session details...</p>
+        </div>
+    </div>
+
+    <!-- Input Form Section (shown when session is waiting for input) -->
+    <div class="input-section" id="input-section" style="display: none;">
+        <div class="input-card">
+            <div class="input-header">
+                <h3>
+                    <i class="fas fa-keyboard"></i>
+                    <span data-i18n="session.input_required">Input Required</span>
+                </h3>
+                <p data-i18n="session.input_description">The session is waiting for your guidance to continue to the next iteration.</p>
+            </div>
+
+            <div class="input-options">
+                <button class="btn btn-primary" id="webui-input-btn">
+                    <i class="fas fa-edit"></i> <span data-i18n="session.provide_input_webui">Provide Input via WebUI</span>
+                </button>
+                <button class="btn btn-secondary" id="console-input-btn">
+                    <i class="fas fa-terminal"></i> <span data-i18n="session.use_console">Use Console Instead</span>
+                </button>
+            </div>
+
+            <div class="input-form" id="input-form" style="display: none;">
+                <div class="form-group">
+                    <label for="user-input-text" data-i18n="session.your_input">Your Input:</label>
+                    <textarea id="user-input-text" placeholder="Enter your guidance for the next research step..."></textarea>
+                </div>
+
+                <div class="examples-section">
+                    <h4 data-i18n="session.examples">💡 Examples:</h4>
+                    <ul>
+                        <li><strong data-i18n="session.example_continue">Continue analysis:</strong> <span data-i18n="session.example_continue_text">"Focus on seasonal patterns in the data"</span></li>
+                        <li><strong data-i18n="session.example_report">Generate report:</strong> <span data-i18n="session.example_report_text">"REPORT: data outliers and optimization opportunities"</span></li>
+                        <li><strong data-i18n="session.example_exit">Exit session:</strong> "EXIT"</li>
+                        <li><strong data-i18n="session.example_memory">Show memory:</strong> "MEMORY"</li>
+                    </ul>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" id="submit-input-btn">
+                        <i class="fas fa-paper-plane"></i> <span data-i18n="session.submit_input">Submit Input</span>
+                    </button>
+                    <button class="btn btn-secondary" id="cancel-input-btn">
+                        <i class="fas fa-times"></i> <span data-i18n="common.cancel">Cancel</span>
+                    </button>
+                </div>
+
+                <div class="input-status" id="input-status" style="display: none;">
+                    <!-- Status messages will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="iterations-section">
+        <h3>
+            <i class="fas fa-list"></i>
+            <span data-i18n="session.iterations">Iterations</span>
+            <span class="live-indicator" id="live-indicator" style="display: none;">
+                <i class="fas fa-circle live-pulse"></i> <span data-i18n="session.live">Live</span>
+            </span>
+        </h3>
+
+        <div class="iterations-timeline" id="iterations-timeline">
+            <!-- Iterations will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Session Overview Template -->
+<template id="session-overview-template">
+    <div class="overview-grid">
+        <div class="overview-card status-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i>
+                <h4 data-i18n="session.status">Status</h4>
+                <div class="status-badge">
+                    <i class="status-icon fas"></i>
+                    <span class="status-text"></span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="session-time-info">
+                    <p><strong data-i18n="session.started">Started:</strong> <span class="start-time"></span></p>
+                    <p class="duration-info"><strong data-i18n="session.duration">Duration:</strong> <span class="duration"></span></p>
+                    <p class="backend-info"><strong data-i18n="session.backend">Backend:</strong> <span class="backend-display"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overview-card task-card">
+            <div class="card-header">
+                <i class="fas fa-tasks"></i>
+                <h4 data-i18n="session.latest_user_input">Latest User Input</h4>
+            </div>
+            <div class="card-content">
+                <p class="initial-task"></p>
+            </div>
+        </div>
+
+        <div class="overview-card metrics-card">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i>
+                <h4 data-i18n="session.session_metrics">Session Metrics</h4>
+            </div>
+            <div class="card-content">
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <i class="fas fa-redo-alt"></i>
+                        <div class="metric-info">
+                            <span class="metric-number iterations-count">0</span>
+                            <span class="metric-label" data-i18n="session.iterations">Iterations</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <i class="fas fa-database"></i>
+                        <div class="metric-info">
+                            <span class="metric-number queries-count">0</span>
+                            <span class="metric-label" data-i18n="session.sql_queries">SQL Queries</span>
+                        </div>
+                    </div>
+                    <div class="metric-item memory-metric" onclick="window.location.href='{{ ('/' + language + '/session/' + session_id + '/memory') if language != 'en' else ('/session/' + session_id + '/memory') }}'">
+                        <i class="fas fa-brain"></i>
+                        <div class="metric-info">
+                            <span class="metric-number memory-items">0</span>
+                            <span class="metric-label" data-i18n="session.memory_items">Memory Items</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <i class="fas fa-comments"></i>
+                        <div class="metric-info">
+                            <span class="metric-number conversation-entries">0</span>
+                            <span class="metric-label" data-i18n="session.conversations">Conversations</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Iteration Item Template -->
+<template id="iteration-item-template">
+    <div class="iteration-item" data-iteration="" onclick="viewIteration(SESSION_ID, this.dataset.iteration)">
+        <div class="iteration-header">
+            <div class="iteration-number">
+                <i class="fas fa-play-circle iteration-icon"></i>
+                <span class="iteration-label"><span data-i18n="iteration.title" data-i18n-replacements='{"number":""}'>Iteration</span> <span class="iteration-num"></span></span>
+            </div>
+            <div class="iteration-status">
+                <i class="status-icon fas"></i>
+                <span class="status-text"></span>
+            </div>
+            <div class="iteration-time"></div>
+        </div>
+
+        <div class="iteration-summary">
+            <div class="tool-calls-summary">
+                <div class="tool-call-count">
+                    <i class="fas fa-tools"></i>
+                    <span class="call-count">0</span> <span data-i18n="session.tool_calls">tool calls</span>
+                </div>
+                <div class="tool-types">
+                    <span class="sql-count">0 <span data-i18n="session.sql_calls">SQL</span></span>
+                    <span class="memory-count">0 <span data-i18n="session.memory_calls">Memory</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="iteration-progress" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <span class="progress-text" data-i18n="session.processing">Processing...</span>
+        </div>
+    </div>
+</template>
+
+<!-- Memory Viewer Modal -->
+<div id="memory-viewer-modal" class="modal" style="display: none;">
+    <div class="modal-content memory-viewer">
+        <div class="modal-header" onclick="toggleAllCategories()">
+            <h3>
+                <i class="fas fa-brain"></i>
+                <span data-i18n="session.session_memory">Session Memory</span>
+            </h3>
+            <div class="header-controls">
+                <span class="expand-all-indicator" id="expand-all-indicator">
+                    <i class="fas fa-compress-alt"></i>
+                    <span class="expand-text" data-i18n="session.collapse_all">Collapse All</span>
+                </span>
+                <button class="modal-close" onclick="closeMemoryViewer(); event.stopPropagation();">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="memory-content">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p data-i18n="common.loading">Loading memory data...</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeMemoryViewer()">
+                <span data-i18n="session.close">Close</span>
+            </button>
+            <button class="btn btn-primary" onclick="refreshMemory()">
+                <i class="fas fa-refresh"></i> <span data-i18n="session.refresh">Refresh</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-backdrop" onclick="closeMemoryViewer()"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/session.js') }}"></script>
+{% endblock %}

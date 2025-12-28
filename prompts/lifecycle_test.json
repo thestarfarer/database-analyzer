@@ -1,0 +1,38 @@
+{
+  "base_prompt": {
+    "assembly_template": "Database schema:\n{schema}\n\n{tools_description}\n\n{domain_context}\n\n{task_instructions}",
+    "domain_context": "Test domain context",
+    "schema": "Test database schema with {{DB_RESULT_LIMIT}} row limit",
+    "task_instructions": "Test task instructions",
+    "tools_description": "Test tool description for {{CURRENT_DATE}}"
+  },
+  "continuation_prompt": {
+    "assembly_template": "{base_prompt}{iteration_context_template}",
+    "iteration_context_template": "Iteration {{CURRENT_ITERATION}} of {{COMPLETED_ITERATIONS}}"
+  },
+  "preset_metadata": {
+    "author": "Test Suite",
+    "created": "2025-01-01",
+    "description": "Test preset for unit tests",
+    "name": "test_preset",
+    "version": "1.0"
+  },
+  "report_prompt": {
+    "assembly_template": "{report_instructions}",
+    "report_instructions": "Generate report for {{TASK_DESCRIPTION}}"
+  },
+  "variable_registry": {
+    "CURRENT_DATE": {
+      "description": "Today's date in YYYY-MM-DD format",
+      "example": "2025-01-01"
+    },
+    "DB_RESULT_LIMIT": {
+      "description": "Maximum rows returned from database",
+      "example": "100"
+    }
+  },
+  "verification_prompt": {
+    "assembly_template": "{base_prompt}\n\n{memory_summary}\n\n{verification_task_template}",
+    "verification_task_template": "Verify {{CATEGORY}} {{KEY}} = {{VALUE}}"
+  }
+}

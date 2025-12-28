@@ -1,0 +1,476 @@
+/* Memory Viewer Styles - Memory feed, categories, cards, badges, filter dropdown */
+
+/* Memory Controls */
+.memory-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--card-header-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--border-accent);
+}
+
+/* Memory Stats */
+.memory-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Memory Feed Layout */
+.memory-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Memory Filter Dropdown */
+.memory-filter-dropdown {
+    display: flex;
+    align-items: center;
+}
+
+.memory-filter-dropdown .filter-icon {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.memory-filter-dropdown .custom-select {
+    position: relative;
+    min-width: 180px;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+
+.memory-filter-dropdown .select-trigger {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.memory-filter-dropdown .select-trigger i:first-child {
+    color: var(--primary);
+    width: 14px;
+}
+
+.memory-filter-dropdown .select-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.memory-filter-dropdown .select-arrow {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.memory-filter-dropdown .custom-select.open .select-arrow {
+    transform: rotate(180deg);
+}
+
+.memory-filter-dropdown .select-options {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: -1px;
+    right: -1px;
+    background: white;
+    border: 1px solid var(--border-primary);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.memory-filter-dropdown .custom-select.open .select-options {
+    display: block;
+}
+
+.memory-filter-dropdown .select-option {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.memory-filter-dropdown .select-option:hover {
+    background: var(--card-header-bg);
+}
+
+.memory-filter-dropdown .select-option.selected {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.memory-filter-dropdown .select-option i {
+    width: 14px;
+}
+
+/* Memory Filter Dropdown - Category Colors */
+.memory-filter-dropdown .select-option[data-value="insights"] i,
+.memory-filter-dropdown .select-trigger i.fa-lightbulb {
+    color: #EDC948;
+}
+
+.memory-filter-dropdown .select-option[data-value="patterns"] i,
+.memory-filter-dropdown .select-trigger i.fa-chart-line {
+    color: #4E79A7;
+}
+
+.memory-filter-dropdown .select-option[data-value="explored_areas"] i,
+.memory-filter-dropdown .select-trigger i.fa-map-marked {
+    color: #B07AA1;
+}
+
+.memory-filter-dropdown .select-option[data-value="key_findings"] i,
+.memory-filter-dropdown .select-trigger i.fa-star {
+    color: #59A14F;
+}
+
+.memory-filter-dropdown .select-option[data-value="opportunities"] i,
+.memory-filter-dropdown .select-trigger i.fa-dollar-sign {
+    color: #F28E2B;
+}
+
+.memory-filter-dropdown .select-option[data-value="data_milestones"] i,
+.memory-filter-dropdown .select-trigger i.fa-flag {
+    color: #76B7B2;
+}
+
+.memory-filter-dropdown .select-option[data-value="data_issues"] i,
+.memory-filter-dropdown .select-trigger i.fa-exclamation-triangle {
+    color: #E15759;
+}
+
+.memory-filter-dropdown .select-option[data-value="user_requests"] i,
+.memory-filter-dropdown .select-trigger i.fa-comments {
+    color: #FF9DA7;
+}
+
+.memory-filter-dropdown .select-option[data-value="metrics"] i,
+.memory-filter-dropdown .select-trigger i.fa-chart-bar {
+    color: #9C755F;
+}
+
+.memory-filter-dropdown .select-option[data-value="context"] i,
+.memory-filter-dropdown .select-trigger i.fa-info-circle {
+    color: #BAB0AC;
+}
+
+.memory-filter-dropdown .select-option[data-value="all"] i,
+.memory-filter-dropdown .select-trigger i.fa-search {
+    color: var(--primary);
+}
+
+.memory-filter-dropdown:focus-within {
+    border-color: var(--border-accent);
+    box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.2);
+}
+
+/* Category-specific Filter Pill Active States */
+.filter-pill.insights.active {
+    background: #ffc107;
+    color: #000;
+}
+
+.filter-pill.patterns.active {
+    background: #007bff;
+}
+
+.filter-pill.key_findings.active {
+    background: #28a745;
+}
+
+.filter-pill.explored_areas.active {
+    background: #6f42c1;
+}
+
+.filter-pill.context.active {
+    background: #17a2b8;
+}
+
+.filter-pill.data_issues.active {
+    background: #dc3545;
+}
+
+/* Memory Feed Grid */
+.memory-feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+}
+
+/* Memory Item */
+.memory-item {
+    padding: 0.5rem;
+    border: 1px solid var(--border-primary);
+    background: white;
+    transition: all 0.1s ease;
+    cursor: pointer;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    margin-right: -1px;
+    margin-bottom: -1px;
+}
+
+.memory-item:hover {
+    background: var(--card-header-bg);
+}
+
+/* Memory Header */
+.memory-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.memory-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.memory-header-right {
+    display: flex;
+    align-items: center;
+}
+
+.memory-header i {
+    width: 1rem;
+    flex-shrink: 0;
+}
+
+/* Memory Item Category Colors */
+.memory-item.insights .memory-header i {
+    color: var(--memory-insights);
+}
+
+.memory-item.patterns .memory-header i {
+    color: var(--memory-patterns);
+}
+
+.memory-item.explored_areas .memory-header i {
+    color: var(--memory-explored-areas);
+}
+
+.memory-item.key_findings .memory-header i {
+    color: var(--memory-key-findings);
+}
+
+.memory-item.opportunities .memory-header i {
+    color: var(--memory-opportunities);
+}
+
+.memory-item.data_milestones .memory-header i {
+    color: var(--memory-data-milestones);
+}
+
+.memory-item.data_issues .memory-header i {
+    color: var(--memory-data-issues);
+}
+
+.memory-item.user_requests .memory-header i {
+    color: var(--memory-user-requests);
+}
+
+.memory-item.metrics .memory-header i {
+    color: var(--memory-metrics);
+}
+
+.memory-item.context .memory-header i {
+    color: var(--memory-context);
+}
+
+/* Memory Meta */
+.memory-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Memory Content */
+.memory-content {
+    line-height: 1.4;
+    background: inherit;
+    border: none;
+}
+
+.memory-key {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 0.25rem;
+    opacity: 0.8;
+}
+
+/* Category Badge */
+.category-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-badge.insights {
+    background: var(--memory-insights-bg);
+    color: var(--memory-insights-text);
+}
+
+.category-badge.patterns {
+    background: var(--memory-patterns-bg);
+    color: var(--memory-patterns-text);
+}
+
+.category-badge.explored_areas {
+    background: var(--memory-explored-areas-bg);
+    color: var(--memory-explored-areas-text);
+}
+
+.category-badge.key_findings {
+    background: var(--memory-key-findings-bg);
+    color: var(--memory-key-findings-text);
+}
+
+.category-badge.opportunities {
+    background: var(--memory-opportunities-bg);
+    color: var(--memory-opportunities-text);
+}
+
+.category-badge.data_milestones {
+    background: #d9edeb;
+    color: #3b5c59;
+}
+
+.category-badge.data_issues {
+    background: #f8dada;
+    color: #722b2d;
+}
+
+.category-badge.user_requests {
+    background: #ffe8ec;
+    color: #7f4e55;
+}
+
+.category-badge.metrics {
+    background: #e4dbd7;
+    color: #4c3d35;
+}
+
+.category-badge.context {
+    background: #eeebe9;
+    color: #5e5854;
+}
+
+/* Iteration Badge */
+.iteration-badge {
+    background: var(--primary-light);
+    color: var(--primary-hover);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Empty Memory State */
+.empty-memory {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #dee2e6;
+}
+
+.empty-memory i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+}
+
+.empty-memory h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+/* Button Outline */
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-secondary);
+    color: var(--text-muted);
+}
+
+.btn-outline:hover {
+    background: var(--hover-secondary);
+    border-color: #adb5bd;
+}
+
+/* Responsive Memory */
+@media (max-width: 768px) {
+    .memory-filter-dropdown .custom-select {
+        min-width: 150px;
+    }
+
+    .memory-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .filter-pill {
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .memory-feed {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .memory-item {
+        padding: 0.75rem 1rem;
+    }
+
+    .memory-stats {
+        gap: 1rem;
+    }
+}

@@ -61,6 +61,39 @@ file_watcher = None
 _preset_manager = None  # Lazy-loaded singleton for preset operations
 _prompts_dir = Path('prompts')  # Default prompts directory, can be overridden for testing
 
+
+def _spawn_detached_process(cmd, cwd):
+    """Spawn a detached subprocess independent from WebUI.
+
+    Used for session creation and resume - fire-and-forget processes.
+    """
+    return subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        env=os.environ,  # Pass environment variables (DB_*, etc.)
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True  # Create new process group for independence
+    )
+
+
+def _run_blocking_subprocess(cmd, cwd, timeout=1200):
+    """Run a blocking subprocess and capture output.
+
+    Used for memory verification - needs to wait for result.
+    """
+    return subprocess.run(
+        cmd,
+        cwd=cwd,
+        env=os.environ,  # Pass environment variables (DB_*, etc.)
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+        timeout=timeout
+    )
+
+
 def get_language_from_request():
     """Extract language from request path or default to 'en'."""
     path = request.path
@@ -279,14 +312,8 @@ def verify_memory_item(session_id):
         if llm_backend:
             cmd.extend(['--llm-backend', llm_backend])
 
-        result = subprocess.run(
-            cmd,
-            stdin=subprocess.DEVNULL,
-            capture_output=True,
-            text=True,
-            timeout=1200,
-            cwd=os.path.dirname(os.path.dirname(__file__))
-        )
+        project_root = os.path.dirname(os.path.dirname(__file__))
+        result = _run_blocking_subprocess(cmd, project_root)
 
         if result.returncode != 0:
             return jsonify({
@@ -612,15 +639,7 @@ def create_new_session():
 
             app.logger.info(f"Starting independent session with command: {' '.join(cmd)} in directory: {project_root}")
 
-            # Start the process as independent (detached from WebUI)
-            process = subprocess.Popen(
-                cmd,
-                cwd=project_root,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True  # Create new process group for independence
-            )
+            process = _spawn_detached_process(cmd, project_root)
 
             app.logger.info(f"Session process started independently with PID: {process.pid}")
 
@@ -701,15 +720,7 @@ def resume_session(session_id):
 
         app.logger.info(f"Resuming session {session_id} with command: {' '.join(cmd)} in directory: {project_root}")
 
-        # Start the process as independent (detached from WebUI)
-        process = subprocess.Popen(
-            cmd,
-            cwd=project_root,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True  # Create new process group for independence
-        )
+        process = _spawn_detached_process(cmd, project_root)
 
         app.logger.info(f"Resume process started independently with PID: {process.pid}")
 

@@ -2,8 +2,6 @@
 
 let iterationData = null;
 let isInitialPageLoad = true;
-let currentLLMResponse = null; // Store current response data for copy operations
-let isThinkingExpanded = false;
 
 // Get session/iteration data from body data attributes
 const SESSION_ID = WebUIUtils.getSessionId();
@@ -13,8 +11,6 @@ const ITERATION_NUM = WebUIUtils.getIterationNum();
 let iterationHeaderInfo;
 let toolCallsTimeline;
 let toolCallsCount;
-let llmResponseModal;
-let llmResponseContent;
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
@@ -46,8 +42,6 @@ function initializeDOMElements() {
     iterationHeaderInfo = document.getElementById('iteration-header-info');
     toolCallsTimeline = document.getElementById('tool-calls-timeline');
     toolCallsCount = document.getElementById('tool-calls-count');
-    llmResponseModal = document.getElementById('llm-response-modal');
-    llmResponseContent = document.getElementById('llm-response-content');
 }
 
 function setupFileChangeListening() {
@@ -648,7 +642,7 @@ function formatMetadata(metadata) {
 }
 
 function renderLLMResponse() {
-    if (!llmResponseContent || !iterationData) return;
+    if (!iterationData) return;
 
     const llmResponseButton = document.querySelector('.llm-response-metric');
     if (!llmResponseButton) return;
@@ -657,232 +651,27 @@ function renderLLMResponse() {
     const thinking = iterationData.llm_thinking || '';
     const rawResponse = iterationData.llm_response_raw || response;
 
-    // Store response data for copy operations
-    currentLLMResponse = {
-        main: response,
-        thinking: thinking,
-        raw: rawResponse
-    };
-
     if (response || thinking) {
         llmResponseButton.style.display = 'flex';
         llmResponseButton.classList.remove('muted');
+
+        // Set up click handler to use shared modal
         llmResponseButton.setAttribute('onclick', 'openLLMResponseModal()');
 
-        // Render markdown content with safety
-        renderMarkdownContent(response);
-
-        // Handle thinking section
-        setupThinkingSection(thinking);
+        // Override openLLMResponseModal for this page
+        window.openLLMResponseModal = function() {
+            if (window.LLMResponseModal) {
+                window.LLMResponseModal.open(response, thinking, rawResponse);
+            }
+        };
     } else {
         llmResponseButton.style.display = 'flex';
         llmResponseButton.classList.add('muted');
         llmResponseButton.removeAttribute('onclick');
-        llmResponseContent.textContent = 'No response available';
     }
 }
 
-function renderMarkdownContent(content) {
-    if (!content) {
-        llmResponseContent.innerHTML = '<p class="no-content">No response content</p>';
-        return;
-    }
-
-    try {
-        // Configure marked options
-        marked.setOptions({
-            breaks: true,
-            gfm: true,
-            tables: true,
-            headerIds: false,
-            mangle: false
-        });
-
-        // Parse markdown to HTML
-        let html = marked.parse(content);
-
-        // Sanitize the HTML to prevent XSS
-        html = DOMPurify.sanitize(html, {
-            ADD_ATTR: ['class', 'style'],
-            ALLOWED_TAGS: [
-                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-                'p', 'br', 'hr',
-                'ul', 'ol', 'li',
-                'table', 'thead', 'tbody', 'tr', 'th', 'td',
-                'strong', 'em', 'code', 'pre',
-                'blockquote', 'a', 'span', 'div'
-            ]
-        });
-
-        // Set the HTML content
-        llmResponseContent.innerHTML = html;
-
-        // Apply syntax highlighting to code blocks
-        llmResponseContent.querySelectorAll('pre code').forEach((block) => {
-            // Try to detect SQL blocks
-            if (block.textContent.match(/\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|JOIN)\b/i)) {
-                block.classList.add('language-sql');
-            }
-            hljs.highlightElement(block);
-        });
-
-    } catch (error) {
-        console.error('Error rendering markdown:', error);
-        // Fallback to plain text
-        llmResponseContent.textContent = content;
-    }
-}
-
-function setupThinkingSection(thinking) {
-    const thinkingSection = document.getElementById('llm-thinking-section');
-    const thinkingContent = document.getElementById('thinking-content');
-    const copyWithThinkingBtn = document.getElementById('copy-with-thinking-btn');
-    const thinkingKeyboardHint = document.getElementById('thinking-keyboard-hint');
-
-    if (thinking) {
-        thinkingSection.style.display = 'block';
-        copyWithThinkingBtn.style.display = 'inline-flex';
-        thinkingKeyboardHint.style.display = 'inline';
-
-        // Render thinking content as monospace/code-like
-        thinkingContent.innerHTML = `<pre class="thinking-pre">${DOMPurify.sanitize(thinking)}</pre>`;
-
-        // Reset expansion state
-        isThinkingExpanded = false;
-        thinkingContent.style.display = 'none';
-        document.getElementById('thinking-toggle-icon').className = 'fas fa-chevron-right thinking-toggle-icon';
-    } else {
-        thinkingSection.style.display = 'none';
-        copyWithThinkingBtn.style.display = 'none';
-        thinkingKeyboardHint.style.display = 'none';
-    }
-}
-
-function openLLMResponseModal() {
-    if (llmResponseModal) {
-        llmResponseModal.style.display = 'flex';
-
-        // Add keyboard event listener for modal shortcuts
-        document.addEventListener('keydown', handleModalKeyboard);
-    }
-}
-
-function closeLLMResponseModal() {
-    if (llmResponseModal) {
-        llmResponseModal.style.display = 'none';
-
-        // Remove keyboard event listener
-        document.removeEventListener('keydown', handleModalKeyboard);
-
-        // Reset thinking state
-        isThinkingExpanded = false;
-        const thinkingContent = document.getElementById('thinking-content');
-        const thinkingIcon = document.getElementById('thinking-toggle-icon');
-        if (thinkingContent) thinkingContent.style.display = 'none';
-        if (thinkingIcon) thinkingIcon.className = 'fas fa-chevron-right thinking-toggle-icon';
-    }
-}
-
-function toggleThinking() {
-    const thinkingContent = document.getElementById('thinking-content');
-    const thinkingIcon = document.getElementById('thinking-toggle-icon');
-
-    if (!thinkingContent || !thinkingIcon) return;
-
-    isThinkingExpanded = !isThinkingExpanded;
-
-    if (isThinkingExpanded) {
-        thinkingContent.style.display = 'block';
-        thinkingIcon.className = 'fas fa-chevron-down thinking-toggle-icon';
-    } else {
-        thinkingContent.style.display = 'none';
-        thinkingIcon.className = 'fas fa-chevron-right thinking-toggle-icon';
-    }
-}
-
-function copyLLMResponse(includeThinking = false) {
-    if (!currentLLMResponse) return;
-
-    let textToCopy = currentLLMResponse.main || '';
-
-    if (includeThinking && currentLLMResponse.thinking) {
-        textToCopy = `<think>\n${currentLLMResponse.thinking}\n</think>\n\n${textToCopy}`;
-    }
-
-    // Use clipboard API directly (like memory.js does)
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            const message = includeThinking ? 'Response copied with thinking' : 'Response copied';
-            if (window.WebUIUtils && window.WebUIUtils.showSuccess) {
-                window.WebUIUtils.showSuccess(message);
-            } else {
-                console.log(message);
-            }
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            // Try fallback method
-            fallbackCopyLLMResponse(textToCopy);
-            const message = includeThinking ? 'Response copied with thinking' : 'Response copied';
-            if (window.WebUIUtils && window.WebUIUtils.showSuccess) {
-                window.WebUIUtils.showSuccess(message);
-            }
-        });
-    } else {
-        // Use fallback for older browsers
-        fallbackCopyLLMResponse(textToCopy);
-        const message = includeThinking ? 'Response copied with thinking' : 'Response copied';
-        if (window.WebUIUtils && window.WebUIUtils.showSuccess) {
-            window.WebUIUtils.showSuccess(message);
-        } else {
-            console.log(message);
-        }
-    }
-}
-
-// Fallback copy method for older browsers (similar to utils.js implementation)
-function fallbackCopyLLMResponse(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-        const successful = document.execCommand('copy');
-        if (!successful) {
-            console.error('Fallback copy failed');
-        }
-    } catch (err) {
-        console.error('Fallback copy failed:', err);
-    }
-
-    document.body.removeChild(textArea);
-}
-
-function handleModalKeyboard(event) {
-    // Don't handle if user is typing in an input field
-    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-        return;
-    }
-
-    switch(event.key.toLowerCase()) {
-        case 'escape':
-            closeLLMResponseModal();
-            event.preventDefault();
-            break;
-        case 't':
-            // Only toggle if thinking section is visible
-            const thinkingSection = document.getElementById('llm-thinking-section');
-            if (thinkingSection && thinkingSection.style.display !== 'none') {
-                toggleThinking();
-                event.preventDefault();
-            }
-            break;
-    }
-}
+// Note: LLM Response Modal functions are now in llm-response-modal.js
 
 // Note: getStatusClass and getStatusIcon are now global functions from utils.js
 

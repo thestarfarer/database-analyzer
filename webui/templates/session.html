@@ -171,37 +171,48 @@
 <!-- Iteration Item Template -->
 <template id="iteration-item-template">
     <div class="iteration-item" data-iteration="" onclick="viewIteration(SESSION_ID, this.dataset.iteration)">
-        <div class="iteration-header">
-            <div class="iteration-number">
-                <i class="fas fa-play-circle iteration-icon"></i>
-                <span class="iteration-label"><span data-i18n="iteration.title" data-i18n-replacements='{"number":""}'>Iteration</span> <span class="iteration-num"></span></span>
+        <div class="iteration-content">
+            <div class="iteration-header">
+                <div class="iteration-number">
+                    <i class="fas fa-play-circle iteration-icon"></i>
+                    <span class="iteration-label"><span data-i18n="iteration.title" data-i18n-replacements='{"number":""}'>Iteration</span> <span class="iteration-num"></span></span>
+                </div>
+                <div class="iteration-status">
+                    <i class="status-icon fas"></i>
+                    <span class="status-text"></span>
+                </div>
+                <div class="iteration-time"></div>
             </div>
-            <div class="iteration-status">
-                <i class="status-icon fas"></i>
-                <span class="status-text"></span>
+
+            <div class="iteration-summary">
+                <div class="tool-calls-summary">
+                    <div class="tool-call-count">
+                        <i class="fas fa-tools"></i>
+                        <span class="call-count">0</span> <span data-i18n="session.tool_calls">tool calls</span>
+                    </div>
+                    <div class="tool-types">
+                        <span class="sql-count">0 <span data-i18n="session.sql_calls">SQL</span></span>
+                        <span class="memory-count">0 <span data-i18n="session.memory_calls">Memory</span></span>
+                    </div>
+                </div>
+                <div class="iteration-user-input" style="display: none;">
+                    <i class="fas fa-comment"></i>
+                    <span class="user-input-text"></span>
+                </div>
             </div>
-            <div class="iteration-time"></div>
+
+            <div class="iteration-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text" data-i18n="session.processing">Processing...</span>
+            </div>
         </div>
 
-        <div class="iteration-summary">
-            <div class="tool-calls-summary">
-                <div class="tool-call-count">
-                    <i class="fas fa-tools"></i>
-                    <span class="call-count">0</span> <span data-i18n="session.tool_calls">tool calls</span>
-                </div>
-                <div class="tool-types">
-                    <span class="sql-count">0 <span data-i18n="session.sql_calls">SQL</span></span>
-                    <span class="memory-count">0 <span data-i18n="session.memory_calls">Memory</span></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="iteration-progress" style="display: none;">
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-            <span class="progress-text" data-i18n="session.processing">Processing...</span>
-        </div>
+        <button class="btn llm-response-btn" onclick="openIterationLLMResponse(event, this.closest('.iteration-item').dataset.iteration)" title="View LLM Response">
+            <i class="fas fa-comment-dots"></i>
+            <span data-i18n="iteration.llm_response">LLM Response</span>
+        </button>
     </div>
 </template>
 
@@ -242,8 +253,15 @@
     </div>
     <div class="modal-backdrop" onclick="closeMemoryViewer()"></div>
 </div>
+
+{% include 'partials/llm_response_modal.html' %}
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="{{ url_for('static', filename='js/llm-response-modal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/session.js') }}"></script>
 {% endblock %}

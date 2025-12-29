@@ -305,6 +305,19 @@
         grid-template-columns: 1fr;
     }
 
+    .iteration-item {
+        flex-direction: column;
+    }
+
+    .iteration-item > .llm-response-btn {
+        border-left: none;
+        border-top: 1px solid var(--border-primary);
+        min-width: unset;
+        width: 100%;
+        padding: 0.75rem;
+        flex-direction: row;
+    }
+
     .iteration-header {
         flex-direction: column;
         align-items: flex-start;
@@ -313,7 +326,72 @@
 
     .iteration-summary {
         flex-direction: column;
-        gap: 1rem;
         align-items: flex-start;
+        gap: 0.75rem;
     }
+}
+
+/* LLM Response Button on right side of iteration items */
+.iteration-item > .llm-response-btn {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.25rem;
+    background: var(--primary-light);
+    border: none;
+    border-left: 1px solid var(--border-primary);
+    border-radius: 0;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.iteration-item > .llm-response-btn.visible {
+    display: flex;
+}
+
+.iteration-item > .llm-response-btn:hover {
+    background: var(--primary-light-hover);
+}
+
+.iteration-item > .llm-response-btn:focus {
+    outline: none;
+}
+
+.iteration-item > .llm-response-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.iteration-item > .llm-response-btn i {
+    font-size: 1.1rem;
+}
+
+/* User input in iteration summary */
+.iteration-user-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--card-header-bg);
+    border-radius: 4px;
+    max-width: 400px;
+    margin-left: auto;
+}
+
+.iteration-user-input i {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.iteration-user-input .user-input-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

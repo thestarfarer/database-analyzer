@@ -1,6 +1,7 @@
 // Session detail page functionality
 
 let sessionData = null;
+let iterationResponses = {}; // Cache: {iteration_num: {main, thinking, raw}}
 
 // DOM elements
 let sessionOverview;
@@ -377,6 +378,18 @@ function createIterationElement(iteration, template) {
     const memoryLabel = window.t ? window.t('session.memory_calls') : 'Memory';
     sqlCount.textContent = `${iterationMetrics.sql_queries} ${sqlLabel}`;
     memoryCount.textContent = `${iterationMetrics.memory_operations} ${memoryLabel}`;
+
+    // Show user input if available
+    const userInputContainer = item.querySelector('.iteration-user-input');
+    const userInputText = item.querySelector('.user-input-text');
+    if (userInputContainer && userInputText && iteration.user_input) {
+        const truncatedInput = iteration.user_input.length > 60
+            ? iteration.user_input.substring(0, 60) + '...'
+            : iteration.user_input;
+        userInputText.textContent = truncatedInput;
+        userInputText.title = iteration.user_input; // Full text on hover
+        userInputContainer.style.display = 'flex';
+    }
     
     // Show progress bar for running iterations
     const progressContainer = item.querySelector('.iteration-progress');
@@ -384,6 +397,24 @@ function createIterationElement(iteration, template) {
         progressContainer.style.display = 'flex';
         const progressFill = progressContainer.querySelector('.progress-fill');
         progressFill.style.width = '60%'; // Simulated progress
+    }
+
+    // Cache LLM response and show button if available
+    const llmResponse = iteration.llm_response || '';
+    const llmThinking = iteration.llm_thinking || '';
+    const llmResponseRaw = iteration.llm_response_raw || llmResponse;
+
+    if (llmResponse || llmThinking) {
+        iterationResponses[iteration.iteration] = {
+            main: llmResponse,
+            thinking: llmThinking,
+            raw: llmResponseRaw
+        };
+
+        const llmResponseBtn = item.querySelector('.llm-response-btn');
+        if (llmResponseBtn) {
+            llmResponseBtn.classList.add('visible');
+        }
     }
 
     // Translate all elements with data-i18n attributes in the cloned template
@@ -865,6 +896,17 @@ function hideInputStatus() {
     }
 }
 
+// LLM Response Modal for iterations
+function openIterationLLMResponse(event, iterationNum) {
+    // Stop event propagation to prevent navigating to iteration detail
+    event.stopPropagation();
+
+    const response = iterationResponses[iterationNum];
+    if (response && window.LLMResponseModal) {
+        window.LLMResponseModal.open(response.main, response.thinking, response.raw);
+    }
+}
+
 // Make functions globally available
 window.viewIteration = viewIteration;
 window.exportSession = exportSession;
@@ -873,3 +915,4 @@ window.closeMemoryViewer = closeMemoryViewer;
 window.refreshMemory = refreshMemory;
 window.filterMemory = filterMemory;
 window.copyMemoryItem = copyMemoryItem;
+window.openIterationLLMResponse = openIterationLLMResponse;

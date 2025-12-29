@@ -46,65 +46,7 @@
     </div>
 </div>
 
-<!-- LLM Response Modal -->
-<div id="llm-response-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header" onclick="closeLLMResponseModal()">
-            <h3>
-                <i class="fas fa-robot"></i>
-                <span data-i18n="iteration.llm_response">LLM Response</span>
-            </h3>
-            <div class="modal-header-actions" onclick="event.stopPropagation()">
-                <button class="btn btn-xs copy-btn" onclick="copyLLMResponse(false)" title="Copy response (without thinking)">
-                    <i class="fas fa-copy"></i>
-                    <span data-i18n="iteration.copy">Copy</span>
-                </button>
-                <button class="btn btn-xs copy-btn" onclick="copyLLMResponse(true)" title="Copy response (with thinking)" style="display: none;" id="copy-with-thinking-btn">
-                    <i class="fas fa-copy"></i>
-                    <span data-i18n="iteration.copy_all">Copy All</span>
-                </button>
-                <button class="modal-close" onclick="closeLLMResponseModal(); event.stopPropagation()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="modal-body">
-            <!-- Thinking Section (hidden by default) -->
-            <div class="llm-thinking-section" id="llm-thinking-section" style="display: none;">
-                <div class="thinking-header" onclick="toggleThinking()">
-                    <i class="fas fa-chevron-right thinking-toggle-icon" id="thinking-toggle-icon"></i>
-                    <i class="fas fa-lightbulb"></i>
-                    <span data-i18n="iteration.thinking">Model Thinking</span>
-                    <span class="thinking-badge">
-                        <i class="fas fa-brain"></i>
-                    </span>
-                </div>
-                <div class="thinking-content" id="thinking-content" style="display: none;">
-                    <!-- Thinking content will be loaded here -->
-                </div>
-            </div>
-
-            <!-- Main Response Content -->
-            <div class="llm-response-content" id="llm-response-content">
-                <!-- LLM response will be loaded here -->
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class="modal-footer-info">
-                <span class="keyboard-hint">
-                    <kbd>ESC</kbd> <span data-i18n="iteration.close_modal">to close</span>
-                    <span id="thinking-keyboard-hint" style="display: none;">
-                        • <kbd>T</kbd> <span data-i18n="iteration.toggle_thinking">to toggle thinking</span>
-                    </span>
-                </span>
-            </div>
-            <button class="btn btn-secondary" onclick="closeLLMResponseModal()">
-                <span data-i18n="session.close">Close</span>
-            </button>
-        </div>
-    </div>
-    <div class="modal-backdrop" onclick="closeLLMResponseModal()"></div>
-</div>
+{% include 'partials/llm_response_modal.html' %}
 
 <!-- Iteration Header Template -->
 <template id="iteration-header-template">
@@ -125,7 +67,7 @@
                     <p class="duration-item"><strong data-i18n="session.duration">Duration:</strong> <span class="duration"></span></p>
                 </div>
                 <div class="metric-item llm-response-metric" onclick="openLLMResponseModal()" style="display: none;">
-                    <i class="fas fa-robot"></i>
+                    <i class="fas fa-comment-dots"></i>
                     <div class="metric-info">
                         <span class="metric-label" data-i18n="iteration.llm_response">LLM Response</span>
                     </div>
@@ -245,5 +187,6 @@
 <!-- Markdown support -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="{{ url_for('static', filename='js/llm-response-modal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/iteration.js') }}"></script>
 {% endblock %}

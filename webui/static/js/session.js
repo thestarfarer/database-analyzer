@@ -381,14 +381,32 @@ function createIterationElement(iteration, template) {
 
     // Show user input if available
     const userInputContainer = item.querySelector('.iteration-user-input');
-    const userInputText = item.querySelector('.user-input-text');
-    if (userInputContainer && userInputText && iteration.user_input) {
-        const truncatedInput = iteration.user_input.length > 60
-            ? iteration.user_input.substring(0, 60) + '...'
-            : iteration.user_input;
-        userInputText.textContent = truncatedInput;
-        userInputText.title = iteration.user_input; // Full text on hover
+    const userInputTextEl = item.querySelector('.user-input-text');
+    if (userInputContainer && userInputTextEl && iteration.user_input) {
+        const fullInput = iteration.user_input;
+        const truncatedInput = fullInput.length > 60
+            ? fullInput.substring(0, 60) + '...'
+            : fullInput;
+        userInputTextEl.textContent = truncatedInput;
+        userInputContainer.title = fullInput + '\n\nClick to copy';
         userInputContainer.style.display = 'flex';
+        userInputContainer.onclick = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            // Fallback for non-HTTPS (clipboard API not available)
+            const textarea = document.createElement('textarea');
+            textarea.value = fullInput;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (window.WebUIUtils && window.WebUIUtils.showSuccess) {
+                window.WebUIUtils.showSuccess('Copied to clipboard');
+            }
+            return false;
+        };
     }
     
     // Show progress bar for running iterations
@@ -413,7 +431,7 @@ function createIterationElement(iteration, template) {
 
         const llmResponseBtn = item.querySelector('.llm-response-btn');
         if (llmResponseBtn) {
-            llmResponseBtn.classList.add('visible');
+            llmResponseBtn.classList.remove('muted');
         }
     }
 

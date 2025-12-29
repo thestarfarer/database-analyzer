@@ -333,7 +333,7 @@
 
 /* LLM Response Button on right side of iteration items */
 .iteration-item > .llm-response-btn {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -350,8 +350,10 @@
     min-width: 100px;
 }
 
-.iteration-item > .llm-response-btn.visible {
-    display: flex;
+.iteration-item > .llm-response-btn.muted {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .iteration-item > .llm-response-btn:hover {
@@ -383,6 +385,12 @@
     border-radius: 4px;
     max-width: 400px;
     margin-left: auto;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.iteration-user-input:hover {
+    background: var(--bg-hover);
 }
 
 .iteration-user-input i {

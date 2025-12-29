@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Database Analyzer",
-    "subtitle": "WebUI"
+    "subtitle": "WebUI",
+    "language_name": "English"
   },
   "navigation": {
     "refresh": "Refresh",

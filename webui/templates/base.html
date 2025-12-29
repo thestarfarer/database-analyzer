@@ -31,11 +31,7 @@
                             <i class="fas fa-chevron-down select-arrow"></i>
                         </div>
                         <div class="select-options">
-                            <div class="select-option {{ 'selected' if language == 'en' or not language else '' }}" data-value="en">
-                                <i class="fas fa-globe"></i>
-                                <span>English</span>
-                            </div>
-                            <!-- Add more languages by creating translation files in static/translations/ -->
+                            <!-- Languages loaded dynamically from /api/i18n/languages -->
                         </div>
                     </div>
                 </div>

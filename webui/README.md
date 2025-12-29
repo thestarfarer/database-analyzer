@@ -98,15 +98,33 @@ webui/
 │   ├── unified_session_reader.py
 │   └── file_watcher.py
 ├── templates/          # Jinja2
-├── static/
-│   ├── css/
-│   │   ├── colors.css  # All colors as CSS custom properties
-│   │   └── *.css
-│   └── js/
-│       ├── utils.js    # Shared utilities (use WebUIUtils)
-│       └── *.js
-└── translations/       # i18n JSON
+└── static/
+    ├── css/
+    │   ├── colors.css  # All colors as CSS custom properties
+    │   └── *.css
+    ├── js/
+    │   ├── utils.js    # Shared utilities (use WebUIUtils)
+    │   └── *.js
+    └── translations/   # i18n JSON (auto-discovered)
 ```
+
+## Adding a Language
+
+Drop a JSON file in `static/translations/`:
+
+```json
+// static/translations/de.json
+{
+  "app": {
+    "title": "Datenbank-Analysator",
+    "subtitle": "WebUI",
+    "language_name": "Deutsch"  // Shown in dropdown
+  },
+  // ... copy structure from en.json
+}
+```
+
+The language appears automatically in the dropdown. No code changes needed.
 
 ## Testing
 

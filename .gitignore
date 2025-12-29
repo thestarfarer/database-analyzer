@@ -32,3 +32,10 @@ output/*.txt
 prompts/*.json
 !prompts/lifecycle_test.json
 .claude/
+
+# Project documentation (local only)
+CLAUDE.md
+
+# Translations (keep only English)
+webui/static/translations/*.json
+!webui/static/translations/en.json

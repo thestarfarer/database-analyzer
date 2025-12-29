@@ -482,6 +482,32 @@ def get_variables():
         app.logger.error(f"Error getting variable registry: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/i18n/languages', methods=['GET'])
+def get_available_languages():
+    """List available translation files from static/translations/."""
+    translations_dir = Path(app.static_folder) / 'translations'
+    languages = []
+
+    if translations_dir.exists():
+        for f in translations_dir.glob('*.json'):
+            code = f.stem
+            # Read language name from the file itself
+            try:
+                with open(f, 'r', encoding='utf-8') as fp:
+                    data = json.load(fp)
+                    name = data.get('app', {}).get('language_name', code.upper())
+            except (json.JSONDecodeError, IOError):
+                name = code.upper()
+
+            languages.append({
+                'code': code,
+                'name': name
+            })
+
+    # Sort with English first, then alphabetically
+    languages.sort(key=lambda x: (x['code'] != 'en', x['code']))
+    return jsonify({'languages': languages})
+
 @app.route('/session/<session_id>')
 def session_detail(session_id):
     """Session detail view."""

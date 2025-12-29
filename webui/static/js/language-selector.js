@@ -1,36 +1,71 @@
-// Language selector functionality
+// Language selector functionality with dynamic language loading
 
-function initializeLanguageSelector() {
+async function loadAvailableLanguages() {
+    try {
+        const response = await fetch('/api/i18n/languages');
+        if (!response.ok) throw new Error('Failed to fetch languages');
+        const data = await response.json();
+        return data.languages || [];
+    } catch (error) {
+        console.error('Error loading languages:', error);
+        // Fallback to English only
+        return [{ code: 'en', name: 'English' }];
+    }
+}
+
+function renderLanguageOptions(languages, currentLang) {
+    const optionsContainer = document.querySelector('#language-select .select-options');
+    if (!optionsContainer) return;
+
+    optionsContainer.innerHTML = languages.map(lang => `
+        <div class="select-option ${lang.code === currentLang ? 'selected' : ''}" data-value="${lang.code}">
+            <i class="fas fa-globe"></i>
+            <span>${lang.name}</span>
+        </div>
+    `).join('');
+
+    // Attach click handlers to new options
+    attachOptionHandlers();
+}
+
+function attachOptionHandlers() {
     const languageSelect = document.getElementById('language-select');
     if (!languageSelect) return;
 
-    const trigger = languageSelect.querySelector('.select-trigger');
-    const options = languageSelect.querySelector('.select-options');
-    const selectText = languageSelect.querySelector('.select-text');
-
-    // Update selector to match current language when i18n is ready
-    if (window.i18n) {
-        updateLanguageSelector(window.i18n.getCurrentLanguage());
-    }
-
-    // Toggle dropdown
-    trigger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        languageSelect.classList.toggle('open');
-    });
-
-    // Handle option selection
     languageSelect.querySelectorAll('.select-option').forEach(option => {
         option.addEventListener('click', function(e) {
             e.stopPropagation();
             const newLang = this.dataset.value;
 
-            if (newLang !== i18n.getCurrentLanguage()) {
+            if (window.i18n && newLang !== i18n.getCurrentLanguage()) {
                 changeLanguage(newLang);
             }
 
             languageSelect.classList.remove('open');
         });
+    });
+}
+
+async function initializeLanguageSelector() {
+    const languageSelect = document.getElementById('language-select');
+    if (!languageSelect) return;
+
+    const trigger = languageSelect.querySelector('.select-trigger');
+
+    // Get current language
+    const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'en';
+
+    // Load and render available languages
+    const languages = await loadAvailableLanguages();
+    renderLanguageOptions(languages, currentLang);
+
+    // Update selector display
+    updateLanguageSelector(currentLang);
+
+    // Toggle dropdown
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        languageSelect.classList.toggle('open');
     });
 
     // Close dropdown when clicking outside
@@ -118,3 +153,4 @@ document.addEventListener('DOMContentLoaded', function() {
 window.initializeLanguageSelector = initializeLanguageSelector;
 window.updateLanguageSelector = updateLanguageSelector;
 window.changeLanguage = changeLanguage;
+window.loadAvailableLanguages = loadAvailableLanguages;

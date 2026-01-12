@@ -20,6 +20,7 @@ class SessionMetadata:
     pid: Optional[int] = None
     preset_name: Optional[str] = None  # Track which preset this session uses
     llm_backend: Optional[str] = None  # LLM backend used: 'qwen' or 'claude'
+    name: Optional[str] = None  # Custom session name for display
 
 
 @dataclass
@@ -383,7 +384,8 @@ ACCUMULATED MEMORY FROM COMPLETED ITERATIONS:
                 "last_save_time": self.metadata.last_save_time,
                 "pid": self.metadata.pid,
                 "preset_name": self.metadata.preset_name,
-                "llm_backend": self.metadata.llm_backend
+                "llm_backend": self.metadata.llm_backend,
+                "name": self.metadata.name
             },
             "iterations": serialized_iterations,
             "export_timestamp": datetime.now().isoformat()
@@ -406,6 +408,7 @@ ACCUMULATED MEMORY FROM COMPLETED ITERATIONS:
         session_state.metadata.preset_name = metadata_dict.get("preset_name")
         session_state.metadata.pid = metadata_dict.get("pid")
         session_state.metadata.llm_backend = metadata_dict.get("llm_backend")
+        session_state.metadata.name = metadata_dict.get("name")
 
         # Memory data composed from tool calls history
 

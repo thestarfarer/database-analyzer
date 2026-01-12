@@ -85,6 +85,8 @@
     "stop_failed": "Failed to stop session",
     "resume_success": "Session resumed successfully",
     "resume_failed": "Failed to resume session",
+    "session_name": "Session Name (optional):",
+    "session_name_placeholder": "e.g., Q4 Sales Analysis",
     "enter_task": "Enter the initial task for the new session:",
     "task_placeholder": "Describe your analysis task...",
     "to_close": "to close",

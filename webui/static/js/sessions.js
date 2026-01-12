@@ -668,7 +668,7 @@ function createSessionCard(session, template) {
     const sessionTitle = card.querySelector('.session-title');
     const sessionTask = card.querySelector('.session-task');
     
-    sessionTitle.textContent = `Session ${session.session_id}`;
+    sessionTitle.textContent = session.name || `Session ${session.session_id}`;
     const noTaskText = window.t ? window.t('session.no_task') : 'No task description';
     sessionTask.textContent = session.latest_user_input || noTaskText;
 
@@ -1243,10 +1243,14 @@ function openNewSessionModal() {
     newSessionModal = document.getElementById('new-session-modal');
     if (newSessionModal) {
         newSessionModal.style.display = 'flex';
+        const nameInput = document.getElementById('new-session-name');
         const textarea = document.getElementById('new-session-task');
+        if (nameInput) {
+            nameInput.value = '';
+        }
         if (textarea) {
             textarea.value = '';
-            textarea.focus();
+            textarea.focus();  // Focus on task (required field)
         }
         document.addEventListener('keydown', handleNewSessionModalKeyboard);
 
@@ -1433,8 +1437,10 @@ function handleNewSessionModalKeyboard(event) {
 }
 
 function submitNewSession() {
+    const nameInput = document.getElementById('new-session-name');
     const textarea = document.getElementById('new-session-task');
     const backendInput = document.getElementById('llm-backend-select');
+    const sessionName = nameInput ? nameInput.value.trim() : '';
     const initialTask = textarea ? textarea.value.trim() : '';
 
     if (!initialTask) {
@@ -1466,16 +1472,21 @@ function submitNewSession() {
     localStorage.setItem('webui_llm_backend', selectedBackend);
 
     // Create the session
+    const requestBody = {
+        first_user_input: initialTask,
+        default_preset: defaultPreset,
+        llm_backend: selectedBackend
+    };
+    if (sessionName) {
+        requestBody.name = sessionName;
+    }
+
     fetch('/api/sessions/new', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            first_user_input: initialTask,
-            default_preset: defaultPreset,
-            llm_backend: selectedBackend
-        })
+        body: JSON.stringify(requestBody)
     })
     .then(response => response.json())
     .then(data => {

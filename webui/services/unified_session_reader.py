@@ -113,6 +113,7 @@ class UnifiedSessionReader:
 
         session_summary = {
             'session_id': metadata.get('session_id'),
+            'name': metadata.get('name'),  # Custom session name for display
             'start_time': metadata.get('start_time', 0),
             'end_time': metadata.get('end_time'),
             'status': actual_status,

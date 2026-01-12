@@ -604,6 +604,9 @@ def create_new_session():
         # Get LLM backend selection
         llm_backend = data.get('llm_backend', 'qwen')
 
+        # Get custom session name (optional)
+        session_name = data.get('name', '').strip() or None
+
         # Validate preset name if provided
         if default_preset and default_preset != 'default':
             is_valid, error_msg = _validate_preset_name(default_preset)
@@ -636,6 +639,11 @@ def create_new_session():
             if llm_backend and llm_backend != 'qwen':
                 cmd.extend(['--llm-backend', llm_backend])
                 app.logger.info(f"Using LLM backend: {llm_backend}")
+
+            # Add session name if provided
+            if session_name:
+                cmd.extend(['--name', session_name])
+                app.logger.info(f"Using session name: {session_name}")
 
             app.logger.info(f"Starting independent session with command: {' '.join(cmd)} in directory: {project_root}")
 

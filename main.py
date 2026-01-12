@@ -169,6 +169,7 @@ def main():
     # Session control arguments
     parser.add_argument('--continue-session', help='Continue from existing session file')
     parser.add_argument('--task', help='Initial task description for new sessions OR guidance for resumed sessions')
+    parser.add_argument('--name', help='Custom session name for display (new sessions only)')
     parser.add_argument('--latest', action='store_true', help='Continue from the latest session')
     parser.add_argument('--list-sessions', action='store_true', help='List available sessions and exit')
 
@@ -298,7 +299,8 @@ def main():
         # Start or continue session with optional task guidance
         session_state = session_manager.start_session(
             session_file=session_file,
-            first_user_input=args.task or ""  # Used as first input for new sessions OR user input for resumed sessions
+            first_user_input=args.task or "",  # Used as first input for new sessions OR user input for resumed sessions
+            session_name=args.name  # Custom session name (new sessions only)
         )
 
         # Run the main session execution loop

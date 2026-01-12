@@ -118,6 +118,7 @@ async function loadSessionData() {
         }
 
         sessionData = await response.json();
+        updateBreadcrumbWithName();
         renderSessionOverview();
         renderIterations();
         updateLiveIndicator();
@@ -130,6 +131,24 @@ async function loadSessionData() {
             errorType,
             retryCallback: 'loadSessionData()'
         });
+    }
+}
+
+function updateBreadcrumbWithName() {
+    if (!sessionData) return;
+
+    const metadata = sessionData.session_metadata || sessionData;
+    const sessionName = metadata.name;
+
+    if (sessionName) {
+        // Update breadcrumb to show session name
+        const breadcrumbCurrent = document.querySelector('.breadcrumb-current');
+        if (breadcrumbCurrent) {
+            breadcrumbCurrent.textContent = sessionName;
+        }
+
+        // Update page title
+        document.title = `${sessionName} - Database Analyzer`;
     }
 }
 

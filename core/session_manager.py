@@ -64,13 +64,14 @@ class SessionManager:
 
         # Live saving after each action via save_callback
 
-    def start_session(self, session_file: Optional[Path] = None, first_user_input: str = "") -> SessionState:
+    def start_session(self, session_file: Optional[Path] = None, first_user_input: str = "", session_name: Optional[str] = None) -> SessionState:
         """
         Start a new session or continue an existing one.
 
         Args:
             session_file: Path to existing session file to continue, or None for new session
             first_user_input: First user input for new sessions OR user input for resumed sessions
+            session_name: Optional custom name for the session (new sessions only)
 
         Returns:
             SessionState object for the started session
@@ -78,14 +79,15 @@ class SessionManager:
         if session_file and session_file.exists():
             return self._continue_session(session_file, first_user_input)
         else:
-            return self._create_new_session(first_user_input)
+            return self._create_new_session(first_user_input, session_name)
 
-    def _create_new_session(self, first_user_input: str) -> SessionState:
+    def _create_new_session(self, first_user_input: str, session_name: Optional[str] = None) -> SessionState:
         """
         Create a new session with unique ID and first user input.
 
         Args:
             first_user_input: First user input for new session (optional)
+            session_name: Optional custom name for display (defaults to None)
 
         Returns:
             SessionState: Newly created session ready for execution
@@ -105,6 +107,9 @@ class SessionManager:
         # Store preset name in session metadata for persistence
         self.current_session.metadata.preset_name = self.config.prompt_preset_name
 
+        # Store custom session name if provided
+        self.current_session.metadata.name = session_name
+
         # Get first user input from user if not provided via command line
         if not first_user_input:
             # Create temporary CLI interface just for getting initial task
@@ -121,7 +126,10 @@ class SessionManager:
 
         self.logger.info(f"Started new session: {session_id}")
         if self.config.verbose_console_output:
-            print(f"\n🎯 New Session: {session_id}")
+            display_name = session_name or session_id
+            print(f"\n🎯 New Session: {display_name}")
+            if session_name:
+                print(f"🔖 Session ID: {session_id}")
             print(f"📋 First Input: {first_user_input}")
             print("-" * 50)
 

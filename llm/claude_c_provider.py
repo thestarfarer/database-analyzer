@@ -104,6 +104,13 @@ class ClaudeCProvider(LLMProvider):
         if tools:
             request["tools"] = self._convert_tools(tools)
 
+        # Add extended thinking if enabled
+        if self.config.extended_thinking:
+            request["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": self.config.thinking_budget_tokens
+            }
+
         return request
 
     def _convert_messages(self, messages: List[LLMMessage]) -> List[Dict[str, Any]]:
@@ -214,6 +221,7 @@ class ClaudeCProvider(LLMProvider):
     def _parse_response(self, response: Dict[str, Any]) -> LLMResponse:
         """Parse Claude API response into LLMResponse."""
         content_parts = []
+        thinking_parts = []
         tool_calls = []
 
         for block in response.get("content", []):
@@ -221,6 +229,8 @@ class ClaudeCProvider(LLMProvider):
 
             if block_type == "text":
                 content_parts.append(block.get("text", ""))
+            elif block_type == "thinking":
+                thinking_parts.append(block.get("thinking", ""))
             elif block_type == "tool_use":
                 tool_calls.append(ToolCall(
                     id=block.get("id", ""),
@@ -230,6 +240,7 @@ class ClaudeCProvider(LLMProvider):
 
         return LLMResponse(
             content="\n".join(content_parts),
+            thinking="\n\n".join(thinking_parts) if thinking_parts else None,
             tool_calls=tool_calls if tool_calls else None,
             stop_reason=response.get("stop_reason"),
             raw_response=response

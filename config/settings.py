@@ -120,6 +120,8 @@ class ClaudeCLLMConfig:
     model: str = 'claude-sonnet-4-5-20250929'
     max_tokens: int = 16384
     timeout_seconds: int = 600  # 10 minute default
+    extended_thinking: bool = False
+    thinking_budget_tokens: int = 10000
 
     @classmethod
     def from_env(cls):
@@ -128,7 +130,9 @@ class ClaudeCLLMConfig:
             binary_path=os.getenv('CLAUDEC_PATH', 'claude-c'),
             model=os.getenv('CLAUDEC_MODEL', 'claude-sonnet-4-5-20250929'),
             max_tokens=int(os.getenv('CLAUDEC_MAX_TOKENS', '16384')),
-            timeout_seconds=int(os.getenv('CLAUDEC_TIMEOUT', '600'))
+            timeout_seconds=int(os.getenv('CLAUDEC_TIMEOUT', '600')),
+            extended_thinking=os.getenv('CLAUDEC_EXTENDED_THINKING', 'false').lower() == 'true',
+            thinking_budget_tokens=int(os.getenv('CLAUDEC_THINKING_BUDGET', '10000'))
         )
 
 

@@ -588,15 +588,23 @@ const CLAUDE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="
 
 /**
  * Get backend icon HTML with optional text
- * @param {string} backend - 'claude' or 'qwen'
+ * @param {string} backend - 'claude', 'claude-c', or 'qwen'
  * @param {object} options - { showText: boolean, iconFirst: boolean }
  * @returns {string} HTML string
  */
 function getBackendIcon(backend, options = {}) {
     const { showText = false, iconFirst = true } = options;
-    const isClaudeBackend = backend === 'claude';
+    const isClaudeBackend = backend === 'claude' || backend === 'claude-c';
     const iconHtml = isClaudeBackend ? CLAUDE_SVG : '<i class="fas fa-server"></i>';
-    const text = isClaudeBackend ? 'Claude' : 'Qwen';
+
+    let text;
+    if (backend === 'claude') {
+        text = 'Claude';
+    } else if (backend === 'claude-c') {
+        text = 'Claude-C';
+    } else {
+        text = 'Qwen';
+    }
 
     if (!showText) {
         return iconHtml;
@@ -609,11 +617,14 @@ function getBackendIcon(backend, options = {}) {
 
 /**
  * Get backend CSS class
- * @param {string} backend - 'claude' or 'qwen'
+ * @param {string} backend - 'claude', 'claude-c', or 'qwen'
  * @returns {string} CSS class name
  */
 function getBackendClass(backend) {
-    return backend === 'claude' ? 'backend-claude' : 'backend-qwen';
+    if (backend === 'claude' || backend === 'claude-c') {
+        return 'backend-claude';
+    }
+    return 'backend-qwen';
 }
 
 // Export functions for use in other scripts

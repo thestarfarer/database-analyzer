@@ -114,6 +114,25 @@ class ClaudeLLMConfig:
 
 
 @dataclass
+class ClaudeCLLMConfig:
+    """Configuration for claude-c subprocess backend."""
+    binary_path: str = 'claude-c'
+    model: str = 'claude-sonnet-4-5-20250929'
+    max_tokens: int = 16384
+    timeout_seconds: int = 600  # 10 minute default
+
+    @classmethod
+    def from_env(cls):
+        """Create config from environment variables."""
+        return cls(
+            binary_path=os.getenv('CLAUDEC_PATH', 'claude-c'),
+            model=os.getenv('CLAUDEC_MODEL', 'claude-sonnet-4-5-20250929'),
+            max_tokens=int(os.getenv('CLAUDEC_MAX_TOKENS', '16384')),
+            timeout_seconds=int(os.getenv('CLAUDEC_TIMEOUT', '600'))
+        )
+
+
+@dataclass
 class AppConfig:
     db_config: DatabaseConfig
     llm_config: LLMConfig
@@ -124,8 +143,9 @@ class AppConfig:
     db_result_limit: int = 100
     prompts_dir: Path = Path("prompts")
     prompt_preset_name: Optional[str] = None  # Name of preset to load (without .json extension)
-    llm_backend: str = 'qwen'  # 'qwen' or 'claude'
+    llm_backend: str = 'qwen'  # 'qwen', 'claude', or 'claude-c'
     claude_config: Optional[ClaudeLLMConfig] = None
+    claude_c_config: Optional[ClaudeCLLMConfig] = None
 
     def __post_init__(self):
         self.output_dir.mkdir(exist_ok=True)
@@ -133,3 +153,6 @@ class AppConfig:
         # Initialize Claude config from environment if not provided
         if self.claude_config is None:
             self.claude_config = ClaudeLLMConfig.from_env()
+        # Initialize Claude-C config from environment if not provided
+        if self.claude_c_config is None:
+            self.claude_c_config = ClaudeCLLMConfig.from_env()

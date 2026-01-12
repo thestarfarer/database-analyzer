@@ -53,6 +53,17 @@ class LLMProviderFactory:
 
             return ClaudeProvider(claude_config, tools)
 
+        elif backend == 'claude-c':
+            from .claude_c_provider import ClaudeCProvider
+            from config.settings import ClaudeCLLMConfig
+
+            # Get Claude-C config from AppConfig or create from env
+            claude_c_config = getattr(config, 'claude_c_config', None)
+            if claude_c_config is None:
+                claude_c_config = ClaudeCLLMConfig.from_env()
+
+            return ClaudeCProvider(claude_c_config, tools)
+
         elif backend == 'qwen':
             from .qwen_provider import QwenAgentProvider
 
@@ -61,7 +72,7 @@ class LLMProviderFactory:
         else:
             raise ValueError(
                 f"Unknown LLM backend: {backend}. "
-                f"Supported backends: 'qwen', 'claude'"
+                f"Supported backends: 'qwen', 'claude', 'claude-c'"
             )
 
     @staticmethod
@@ -73,6 +84,13 @@ class LLMProviderFactory:
             List of backend info dictionaries with 'id', 'name', 'available' keys
         """
         import os
+        import shutil
+
+        # Check if claude-c binary is available
+        claudec_path = os.getenv('CLAUDEC_PATH', 'claude-c')
+        claudec_available = (
+            os.path.isfile(claudec_path) and os.access(claudec_path, os.X_OK)
+        ) or bool(shutil.which(claudec_path))
 
         backends = [
             {
@@ -82,8 +100,13 @@ class LLMProviderFactory:
             },
             {
                 'id': 'claude',
-                'name': 'Claude (Anthropic)',
+                'name': 'Claude (Anthropic API)',
                 'available': bool(os.getenv('ANTHROPIC_API_KEY'))
+            },
+            {
+                'id': 'claude-c',
+                'name': 'Claude (claude-c CLI)',
+                'available': claudec_available
             }
         ]
 

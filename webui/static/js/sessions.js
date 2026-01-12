@@ -678,7 +678,13 @@ function createSessionCard(session, template) {
         const backend = session.llm_backend || 'qwen';
         backendIcon.classList.add(WebUIUtils.getBackendClass(backend));
         backendIcon.innerHTML = WebUIUtils.getBackendIcon(backend);
-        backendIcon.title = backend === 'claude' ? 'Claude (Anthropic)' : 'Qwen (Local)';
+        if (backend === 'claude') {
+            backendIcon.title = 'Claude (Anthropic API)';
+        } else if (backend === 'claude-c') {
+            backendIcon.title = 'Claude (claude-c CLI)';
+        } else {
+            backendIcon.title = 'Qwen (Local)';
+        }
     }
 
     // Metrics
@@ -1285,8 +1291,9 @@ async function loadLLMBackends() {
             }
 
             // Icon based on backend type
-            const icon = backend.id === 'claude' ? 'fa-cloud' : 'fa-server';
-            const badgeText = backend.id === 'claude' ? 'API' : 'Local';
+            const isClaudeBackend = backend.id === 'claude' || backend.id === 'claude-c';
+            const icon = isClaudeBackend ? 'fa-cloud' : 'fa-server';
+            const badgeText = backend.id === 'claude' ? 'API' : (backend.id === 'claude-c' ? 'CLI' : 'Local');
 
             item.innerHTML = `
                 <i class="fas ${icon}"></i>
@@ -1393,6 +1400,9 @@ function updateBackendStatus() {
         statusSpan.className = 'backend-status backend-status-warning';
     } else if (selectedId === 'claude') {
         statusSpan.textContent = 'Claude API';
+        statusSpan.className = 'backend-status backend-status-claude';
+    } else if (selectedId === 'claude-c') {
+        statusSpan.textContent = 'Claude CLI';
         statusSpan.className = 'backend-status backend-status-claude';
     } else {
         statusSpan.textContent = 'Local model';

@@ -188,7 +188,7 @@ def main():
     parser.add_argument('--quiet', action='store_true', help='Disable verbose console output')
 
     # LLM backend selection
-    parser.add_argument('--llm-backend', choices=['qwen', 'claude'], default=None,
+    parser.add_argument('--llm-backend', choices=['qwen', 'claude', 'claude-c'], default=None,
                         help='LLM backend to use (default: qwen)')
 
     args = parser.parse_args()
@@ -219,6 +219,20 @@ def main():
             sys.exit(1)
         if verbose_output:
             print(f"🤖 Using Claude backend (model: {config.claude_config.model})")
+
+    # Validate Claude-C backend requirements
+    if config.llm_backend == 'claude-c':
+        import shutil
+        binary_path = config.claude_c_config.binary_path
+        binary_exists = (
+            os.path.isfile(binary_path) and os.access(binary_path, os.X_OK)
+        ) or bool(shutil.which(binary_path))
+        if not binary_exists:
+            print(f"❌ Error: claude-c binary not found at: {binary_path}")
+            print("  Set CLAUDEC_PATH environment variable or build claude-c")
+            sys.exit(1)
+        if verbose_output:
+            print(f"🤖 Using Claude-C backend (model: {config.claude_c_config.model})")
 
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGTERM, graceful_shutdown)

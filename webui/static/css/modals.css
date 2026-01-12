@@ -394,7 +394,8 @@
     color: var(--backend-local-text);
 }
 
-.backend-dropdown-item[data-value="claude"] .item-badge {
+.backend-dropdown-item[data-value="claude"] .item-badge,
+.backend-dropdown-item[data-value="claude-c"] .item-badge {
     background-color: var(--backend-claude-bg);
     color: var(--backend-claude-text);
 }

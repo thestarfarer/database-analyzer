@@ -175,6 +175,16 @@
     font-size: 0.9rem;
 }
 
+.footer a {
+    color: white;
+    text-decoration: underline;
+    opacity: 0.9;
+}
+
+.footer a:hover {
+    opacity: 1;
+}
+
 /* Connection Status */
 .connection-status {
     display: flex;

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Session {{ session_id }} - Database Analyzer{% endblock %}
+
+{% block extra_head %}
+<link href="{{ url_for('static', filename='css/chat.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body_attrs %}data-session-id="{{ session_id }}" class="chat-page"{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <aside class="chat-sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo" onclick="window.location.href='{{ '/' + language + '/' if language != 'en' else '/' }}'">
+            <i class="fas fa-chart-line"></i>
+            <span data-i18n="app.title">Database Analyzer</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="{{ '/' + language + '/' if language != 'en' else '/' }}" class="sidebar-link">
+                <i class="fas fa-home"></i>
+                <span data-i18n="navigation.sessions">Sessions</span>
+            </a>
+            <a href="{{ ('/' + language + '/session/' + session_id) if language != 'en' else ('/session/' + session_id) }}" class="sidebar-link">
+                <i class="fas fa-info-circle"></i>
+                <span data-i18n="chat.detail_view">Detail View</span>
+            </a>
+            <a href="{{ ('/' + language + '/session/' + session_id + '/memory') if language != 'en' else ('/session/' + session_id + '/memory') }}" class="sidebar-link">
+                <i class="fas fa-brain"></i>
+                <span data-i18n="navigation.memory">Memory</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Actions -->
+        <div class="sidebar-actions">
+            <!-- Language Selector -->
+            <div class="sidebar-language">
+                <div class="custom-select sidebar-select" id="sidebar-language-select">
+                    <div class="select-trigger">
+                        <i class="fas fa-globe"></i>
+                        <span class="select-text">{{ language.upper() if language else 'EN' }}</span>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                    <div class="select-options">
+                        <!-- Languages loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompts Button -->
+            <a href="#" class="sidebar-link sidebar-action-btn" id="sidebar-preset-btn">
+                <i class="fas fa-file-code"></i>
+                <span data-i18n="navigation.prompts">Prompts</span>
+            </a>
+
+            <!-- Refresh Button -->
+            <a href="#" class="sidebar-link sidebar-action-btn" id="sidebar-refresh-btn">
+                <i class="fas fa-sync-alt"></i>
+                <span data-i18n="navigation.refresh">Refresh</span>
+            </a>
+            <span class="sidebar-refresh-counter" id="sidebar-refresh-counter">0s</span>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Status -->
+        <div class="sidebar-status">
+            <div class="connection-status sidebar-connection" id="sidebar-connection-status">
+                <i class="fas fa-circle" id="sidebar-status-icon"></i>
+                <span id="sidebar-status-text" data-i18n="status.connecting">Connecting...</span>
+            </div>
+            <span class="live-indicator" id="live-indicator" style="display: none;">
+                <i class="fas fa-circle live-pulse"></i>
+                <span data-i18n="session.live">Live</span>
+            </span>
+        </div>
+
+        <!-- Session Info -->
+        <div class="sidebar-session-info">
+            <span class="session-label">Session</span>
+            <span class="session-id">{{ session_id }}</span>
+        </div>
+    </aside>
+
+    <div class="chat-content">
+        <div class="chat-messages" id="chat-messages">
+            <div class="loading-spinner" id="chat-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p data-i18n="chat.loading">Loading conversation...</p>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area" id="chat-input-area">
+            <!-- Processing Indicator -->
+            <div class="chat-processing" id="chat-processing" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span data-i18n="chat.processing">Processing...</span>
+            </div>
+
+            <!-- Input Form -->
+            <div class="chat-input-form" id="chat-input-form">
+                <textarea
+                    id="chat-input-text"
+                    class="chat-input-textarea"
+                    placeholder="Enter your message..."
+                    data-i18n-placeholder="chat.input_placeholder"
+                    rows="1"></textarea>
+                <button class="chat-submit-btn" id="chat-submit-btn" title="Send (Ctrl+Enter)">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+
+            <!-- Status Message -->
+            <div class="chat-input-status" id="chat-input-status" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Message Templates -->
+<template id="user-message-template">
+    <div class="chat-message user-message">
+        <div class="message-header">
+            <span class="iteration-marker"></span>
+            <span class="message-time"></span>
+        </div>
+        <div class="message-bubble">
+            <div class="message-content"></div>
+        </div>
+        <div class="message-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+    </div>
+</template>
+
+<template id="bot-message-template">
+    <div class="chat-message bot-message">
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="message-bubble">
+            <div class="message-content"></div>
+            <div class="tool-calls-section" style="display: none;">
+                <button class="tool-calls-toggle" onclick="toggleToolCalls(this)">
+                    <i class="fas fa-chevron-right toggle-icon"></i>
+                    <i class="fas fa-tools"></i>
+                    <span class="tool-calls-count"></span>
+                </button>
+                <div class="tool-calls-content" style="display: none;">
+                    <!-- Tool calls will be rendered here -->
+                </div>
+            </div>
+        </div>
+        <div class="message-header">
+            <span class="iteration-marker"></span>
+            <span class="message-time"></span>
+        </div>
+    </div>
+</template>
+
+<template id="tool-call-item-template">
+    <div class="tool-call-item">
+        <div class="tool-call-header">
+            <span class="tool-type-badge"></span>
+            <span class="tool-execution-time"></span>
+        </div>
+        <div class="tool-call-input">
+            <pre><code></code></pre>
+        </div>
+        <div class="tool-call-output">
+            <pre><code></code></pre>
+        </div>
+    </div>
+</template>
+
+{% include 'partials/llm_response_modal.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="{{ url_for('static', filename='js/llm-response-modal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

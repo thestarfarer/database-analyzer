@@ -571,6 +571,18 @@ def memory_detail_with_lang(lang, session_id):
         return redirect(url_for('memory_detail', session_id=session_id))
     return render_template_with_lang('memory.html', session_id=session_id)
 
+@app.route('/session/<session_id>/chat')
+def session_chat(session_id):
+    """Chat view for a session."""
+    return render_template_with_lang('chat.html', session_id=session_id)
+
+@app.route('/<lang>/session/<session_id>/chat')
+def session_chat_with_lang(lang, session_id):
+    """Chat view with language prefix."""
+    if not _validate_language(lang):
+        return redirect(url_for('session_chat', session_id=session_id))
+    return render_template_with_lang('chat.html', session_id=session_id)
+
 @app.route('/api/llm/backends', methods=['GET'])
 def get_llm_backends():
     """Get list of available LLM backends."""

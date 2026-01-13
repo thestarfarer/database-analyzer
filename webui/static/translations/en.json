@@ -14,7 +14,8 @@
     "resume": "Resume",
     "more": "More",
     "home": "Home",
-    "prompts": "Prompts"
+    "prompts": "Prompts",
+    "chat_view": "Chat View"
   },
   "prompts": {
     "editor_title": "Prompt Preset Editor",
@@ -216,6 +217,13 @@
     "edit": "Edit",
     "view": "View",
     "download": "Download"
+  },
+  "chat": {
+    "detail_view": "Detail View",
+    "loading": "Loading conversation...",
+    "processing": "Processing...",
+    "input_placeholder": "Enter your message...",
+    "no_messages": "No messages yet"
   },
   "footer": {
     "copyright": "2025 Database Analyzer WebUI"

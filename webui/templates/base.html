@@ -10,6 +10,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body {% block body_attrs %}{% endblock %}>
+    {% block header %}
     <header class="header">
         <div class="header-container">
             <div class="logo-section">
@@ -47,6 +48,7 @@
             </nav>
         </div>
     </header>
+    {% endblock %}
 
     <main class="main">
         {% block content %}{% endblock %}
@@ -167,11 +169,13 @@
         </div>
     </div>
 
+    {% block footer %}
     <footer class="footer">
         <div class="footer-container">
             <p>© 2025-2026 | <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
         </div>
     </footer>
+    {% endblock %}
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>

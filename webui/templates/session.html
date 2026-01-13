@@ -16,6 +16,9 @@
         </div>
 
         <div class="session-actions-header">
+            <a href="{{ ('/' + language + '/session/' + session_id + '/chat') if language != 'en' else ('/session/' + session_id + '/chat') }}" class="btn btn-secondary">
+                <i class="fas fa-comments"></i> <span data-i18n="navigation.chat_view">Chat View</span>
+            </a>
             <button class="btn btn-secondary" onclick="exportSession('{{ session_id }}')">
                 <i class="fas fa-download"></i> <span data-i18n="navigation.export">Export</span>
             </button>

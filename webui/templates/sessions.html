@@ -70,7 +70,7 @@
 
 <!-- Session Card Template -->
 <template id="session-card-template">
-    <div class="session-card" data-session-id="" onclick="viewSession(this.dataset.sessionId)">
+    <div class="session-card" data-session-id="" onclick="viewChat(this.dataset.sessionId)">
         <div class="session-header">
             <div class="session-status">
                 <i class="status-icon fas"></i>
@@ -122,6 +122,9 @@
                     <i class="fas fa-ellipsis-v"></i> <span data-i18n="navigation.more">More</span>
                 </button>
                 <div class="dropdown-menu">
+                    <button class="dropdown-item details-session" onclick="viewSessionDetails(this.dataset.sessionId); closeDropdown(this); event.stopPropagation();">
+                        <i class="fas fa-info-circle"></i> <span data-i18n="navigation.details">Details</span>
+                    </button>
                     <button class="dropdown-item export-session" onclick="exportSession(this.dataset.sessionId); closeDropdown(this); event.stopPropagation();">
                         <i class="fas fa-download"></i> <span data-i18n="navigation.export">Export</span>
                     </button>

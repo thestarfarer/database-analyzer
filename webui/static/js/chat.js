@@ -2,6 +2,15 @@
 
 let sessionData = null;
 
+// Format timestamp for chat view (two rows: date, time)
+function formatChatTimestamp(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(typeof timestamp === 'number' ? timestamp * 1000 : timestamp);
+    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr}<br>${timeStr}`;
+}
+
 // DOM elements
 let chatMessages;
 let chatLoading;
@@ -169,7 +178,7 @@ function createUserMessage(iteration) {
     const messageContent = message.querySelector('.message-content');
 
     iterationMarker.textContent = `#${iteration.iteration}`;
-    messageTime.textContent = WebUIUtils.formatTimestamp(iteration.start_time);
+    messageTime.innerHTML = formatChatTimestamp(iteration.start_time);
     messageContent.textContent = iteration.user_input;
 
     return container;
@@ -188,8 +197,8 @@ function createBotMessage(iteration) {
     const toolCallsContent = message.querySelector('.tool-calls-content');
 
     iterationMarker.textContent = `#${iteration.iteration}`;
-    messageTime.textContent = iteration.end_time
-        ? WebUIUtils.formatTimestamp(iteration.end_time)
+    messageTime.innerHTML = iteration.end_time
+        ? formatChatTimestamp(iteration.end_time)
         : 'Processing...';
 
     // Render markdown content

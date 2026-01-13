@@ -326,7 +326,7 @@ body.chat-page .main {
 }
 
 .bot-message .message-header {
-    text-align: left;
+    text-align: right;
 }
 
 /* Message Components */

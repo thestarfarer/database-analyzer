@@ -696,12 +696,14 @@ function createSessionCard(session, template) {
     // Action buttons
     const stopButton = card.querySelector('.stop-session');
     const resumeButton = card.querySelector('.resume-session');
+    const detailsButton = card.querySelector('.details-session');
     const exportButton = card.querySelector('.export-session');
     const deleteButton = card.querySelector('.delete-session');
 
     // Set session IDs for all buttons
     stopButton.dataset.sessionId = session.session_id;
     resumeButton.dataset.sessionId = session.session_id;
+    detailsButton.dataset.sessionId = session.session_id;
     exportButton.dataset.sessionId = session.session_id;
     deleteButton.dataset.sessionId = session.session_id;
 
@@ -902,7 +904,11 @@ function updateStats() {
 }
 
 // Global functions for button handlers
-function viewSession(sessionId) {
+function viewChat(sessionId) {
+    window.location.href = `/session/${sessionId}/chat`;
+}
+
+function viewSessionDetails(sessionId) {
     window.location.href = `/session/${sessionId}`;
 }
 
@@ -1513,7 +1519,8 @@ function submitNewSession() {
 }
 
 // Make functions globally available
-window.viewSession = viewSession;
+window.viewChat = viewChat;
+window.viewSessionDetails = viewSessionDetails;
 window.exportSession = exportSession;
 window.deleteSession = deleteSession;
 window.stopSession = stopSession;

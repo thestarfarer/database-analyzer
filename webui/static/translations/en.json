@@ -15,7 +15,8 @@
     "more": "More",
     "home": "Home",
     "prompts": "Prompts",
-    "chat_view": "Chat View"
+    "chat_view": "Chat View",
+    "details": "Details"
   },
   "prompts": {
     "editor_title": "Prompt Preset Editor",

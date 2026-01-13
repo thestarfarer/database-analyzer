@@ -35,6 +35,8 @@ class LLMMessage:
     tool_calls: Optional[List[ToolCall]] = None
     tool_call_id: Optional[str] = None
     tool_results: Optional[List[Dict[str, Any]]] = None
+    thinking: Optional[str] = None  # Extended thinking text (for display)
+    thinking_blocks: Optional[List[Dict[str, Any]]] = None  # Raw thinking blocks with signatures (Claude API)
 
 
 @dataclass
@@ -42,7 +44,8 @@ class LLMResponse:
     """Backend-agnostic response from LLM."""
     content: str
     tool_calls: Optional[List[ToolCall]] = None
-    thinking: Optional[str] = None  # Extended thinking content (Claude)
+    thinking: Optional[str] = None  # Extended thinking text (for display)
+    thinking_blocks: Optional[List[Dict[str, Any]]] = None  # Raw thinking blocks with signatures (Claude API)
     stop_reason: Optional[str] = None
     raw_response: Any = None  # Backend-specific response for debugging
 

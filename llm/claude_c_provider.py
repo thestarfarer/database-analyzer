@@ -104,12 +104,8 @@ class ClaudeCProvider(LLMProvider):
         if tools:
             request["tools"] = self._convert_tools(tools)
 
-        # Add extended thinking if enabled
-        if self.config.extended_thinking:
-            request["thinking"] = {
-                "type": "enabled",
-                "budget_tokens": self.config.thinking_budget_tokens
-            }
+        # Extended thinking disabled - claude-c doesn't support the required
+        # beta header for signatures in multi-turn conversations
 
         return request
 
@@ -121,18 +117,23 @@ class ClaudeCProvider(LLMProvider):
 
             if msg.tool_results:
                 claude_msg["content"] = msg.tool_results
-            elif msg.tool_calls:
-                # Convert tool calls to content blocks
+            elif msg.role == "assistant" and (msg.thinking_blocks or msg.tool_calls):
+                # Assistant message with thinking or tool calls needs content array
                 content = []
+                # Thinking blocks must come first when extended thinking is enabled
+                # Use full blocks (with signature) if available
+                if msg.thinking_blocks:
+                    content.extend(msg.thinking_blocks)
                 if msg.content:
                     content.append({"type": "text", "text": msg.content})
-                for tc in msg.tool_calls:
-                    content.append({
-                        "type": "tool_use",
-                        "id": tc.id,
-                        "name": tc.name,
-                        "input": tc.arguments
-                    })
+                if msg.tool_calls:
+                    for tc in msg.tool_calls:
+                        content.append({
+                            "type": "tool_use",
+                            "id": tc.id,
+                            "name": tc.name,
+                            "input": tc.arguments
+                        })
                 claude_msg["content"] = content
             else:
                 claude_msg["content"] = msg.content
@@ -222,6 +223,7 @@ class ClaudeCProvider(LLMProvider):
         """Parse Claude API response into LLMResponse."""
         content_parts = []
         thinking_parts = []
+        thinking_blocks = []
         tool_calls = []
 
         for block in response.get("content", []):
@@ -231,6 +233,11 @@ class ClaudeCProvider(LLMProvider):
                 content_parts.append(block.get("text", ""))
             elif block_type == "thinking":
                 thinking_parts.append(block.get("thinking", ""))
+                # Store full block with signature for API reconstruction
+                logger.debug(f"Thinking block keys: {block.keys()}")
+                if "signature" not in block:
+                    logger.warning(f"Thinking block missing signature! Block: {block}")
+                thinking_blocks.append(block)
             elif block_type == "tool_use":
                 tool_calls.append(ToolCall(
                     id=block.get("id", ""),
@@ -241,6 +248,7 @@ class ClaudeCProvider(LLMProvider):
         return LLMResponse(
             content="\n".join(content_parts),
             thinking="\n\n".join(thinking_parts) if thinking_parts else None,
+            thinking_blocks=thinking_blocks if thinking_blocks else None,
             tool_calls=tool_calls if tool_calls else None,
             stop_reason=response.get("stop_reason"),
             raw_response=response
@@ -329,11 +337,13 @@ class ClaudeCProvider(LLMProvider):
                     verbose
                 )
 
-                # Add assistant response to conversation
+                # Add assistant response to conversation (preserve thinking for extended thinking)
                 current_messages.append(LLMMessage(
                     role="assistant",
                     content=llm_response.content,
-                    tool_calls=llm_response.tool_calls
+                    tool_calls=llm_response.tool_calls,
+                    thinking=llm_response.thinking,
+                    thinking_blocks=llm_response.thinking_blocks
                 ))
 
                 # Add tool results

@@ -13,6 +13,13 @@ let sortOrder;
 let sessionsStats;
 let emptyState;
 
+// Sync heartbeat animation to global cycle
+function syncHeartbeatAnimation(card) {
+    const animationDuration = 3000; // matches CSS heartbeat
+    const offset = Date.now() % animationDuration;
+    card.style.animationDelay = `-${offset}ms`;
+}
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] DOM Content Loaded - Initializing sessions page');
@@ -654,6 +661,9 @@ function createSessionCard(session, template) {
     const statusClass = getStatusClass(session.status);
 
     card.classList.add(statusClass);
+    if (statusClass === 'running') {
+        syncHeartbeatAnimation(card);
+    }
     statusIcon.className = `status-icon fas ${getStatusIcon(session.status)}`;
 
     // Translate status text
@@ -806,6 +816,9 @@ function updateSessionCard(card, session) {
         // Remove old status class and add new one
         card.classList.remove(oldStatusClass);
         card.classList.add(newStatusClass);
+        if (newStatusClass === 'running') {
+            syncHeartbeatAnimation(card);
+        }
 
         statusIcon.className = `status-icon fas ${getStatusIcon(session.status)}`;
 

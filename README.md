@@ -4,7 +4,7 @@ Point an LLM at your database. Let it explore. Come back tomorrow and pick up wh
 
 An iterative analysis tool with persistent memory—the LLM remembers what it's found across sessions, building understanding instead of starting fresh every time.
 
-<!-- ![WebUI Screenshot](docs/images/webui.png) -->
+![WebUI Screenshot](docs/images/webui-sessions.jpg)
 
 ## Features
 
